@@ -18,69 +18,6 @@
             white-space: nowrap; 
         }
 
-        /* ===== CARA DE PIXELITO ESTILO ROBOT ===== */
-        .pixelito-body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: 'VT323', monospace;
-            font-size: 1.1rem;
-            line-height: 1.0;
-            color: #1f2937;
-            /* Animación de respiración */
-            animation: breathing 3s ease-in-out infinite;
-        }
-
-        .pixelito-row {
-            display: flex;
-            justify-content: center;
-            white-space: pre;
-        }
-
-        /* Ojos con parpadeo */
-        .pixelito-eyes {
-            display: inline;
-        }
-
-        .pixelito-eyes.blinking .eye-open {
-            display: none;
-        }
-        .pixelito-eyes.blinking .eye-closed {
-            display: inline;
-        }
-        .pixelito-eyes .eye-closed {
-            display: none;
-        }
-
-        /* Boca con animación al hablar */
-        .pixelito-mouth {
-            display: inline;
-        }
-        .pixelito-mouth .mouth-normal {
-            display: inline;
-        }
-        .pixelito-mouth .mouth-talking {
-            display: none;
-        }
-        .pixelito-mouth.talking .mouth-normal {
-            display: none;
-        }
-        .pixelito-mouth.talking .mouth-talking {
-            display: inline;
-        }
-
-        /* Animación de respiración suave */
-        @keyframes breathing {
-            0%, 100% { transform: scale(1) translateY(0); }
-            50% { transform: scale(1.03) translateY(-2px); }
-        }
-
-        /* Animación de parpadeo */
-        @keyframes blink {
-            0%, 90%, 100% { opacity: 1; }
-            95% { opacity: 0; }
-        }
-
         /* Variables de color basadas en el boceto */
         :root {
             --lcd-green: #e1ffe0; /* Fondo de pantalla de la mascota */
@@ -164,7 +101,7 @@
 			 /* Mueve de la esquina superior izquierda (0,0) */
             0% { transform: translate(0%, 0%) rotate(15deg); }
             /* A la esquina superior derecha */
-            25% { transform: translate(60%, 710%) rotate(5deg); }
+            25% { transform: translate(60%, 910%) rotate(5deg); }
             /* A la esquina inferior derecha */
             50% { transform: translate(120%, 10%) rotate(-5deg); }
             /* A la esquina inferior izquierda */
@@ -308,12 +245,9 @@
                 -->
                 <div class="pixelito-movement-area">
                     <div class="pixelito-wrapper">
-                        <!-- El Pixelito con su expresión y animación estilo Robot -->
-                        <div id="pixelito-face" class="pixelito-body">
-                            <div class="pixelito-row">┌─────┐</div>
-                            <div class="pixelito-row">│ <span class="pixelito-eyes"><span class="eye-open">●</span><span class="eye-closed">─</span></span> <span class="pixelito-eyes"><span class="eye-open">●</span><span class="eye-closed">─</span></span> │</div>
-                            <div class="pixelito-row">│  <span class="pixelito-mouth"><span class="mouth-normal">─</span><span class="mouth-talking">◯</span></span>  │</div>
-                            <div class="pixelito-row">└─────┘</div>
+                        <!-- El Pixelito con su expresión y animación -->
+                        <div id="pixelito-face" class="pixel-font text-gray-800">
+                            ( •-• )
                         </div>
                     </div>
                 </div>
@@ -453,34 +387,13 @@
             timeLived: 0, // Segundos
             gameTickCounter: 0,
             status: "Huevo",
-            face: "normal", // Tipos: normal, happy, sad, sleeping, eating, working, tired, dirty, excited
-            eyes: "●",      // Ojos actuales
-            mouth: "───"    // Boca actual
-        };
-        
-        // Expresiones del robot (ojos y boca)
-        const EXPRESSIONS = {
-            normal:   { eyes: "●", eyesClosed: "─", mouth: "─", mouthTalk: "◯" },
-            happy:    { eyes: "◕", eyesClosed: "◡", mouth: "◡", mouthTalk: "○" },
-            sad:      { eyes: "●", eyesClosed: "─", mouth: "╭─╮", mouthTalk: "◯" },
-            sleeping: { eyes: "─", eyesClosed: "─", mouth: "──", mouthTalk: "z" },
-            eating:   { eyes: "◕", eyesClosed: "─", mouth: "◯", mouthTalk: "●" },
-            working:  { eyes: "◎", eyesClosed: "─", mouth: "═", mouthTalk: "◯" },
-            tired:    { eyes: "×", eyesClosed: "×", mouth: "~", mouthTalk: "◯" },
-            dirty:    { eyes: "◑", eyesClosed: "─", mouth: "═", mouthTalk: "◯" },
-            excited:  { eyes: "★", eyesClosed: "☆", mouth: "◡", mouthTalk: "○" },
-            studying: { eyes: "◎", eyesClosed: "─", mouth: "─", mouthTalk: "·" },
-            playing:  { eyes: "◕", eyesClosed: "◡", mouth: "◡", mouthTalk: "○" },
-            gym:      { eyes: "◕", eyesClosed: "─", mouth: "═", mouthTalk: "◯" },
-            crying:   { eyes: "╥", eyesClosed: "╥", mouth: "╭─╮", mouthTalk: "◯" }
+            face: "( •-• )"
         };
         
         // Estado de la mascota actual (se carga en init)
         let petStateLocal = { ...DEFAULT_PET_STATE };
         let gameLoopInterval = null;
         let messageInterval = null;
-        let blinkInterval = null;    // Intervalo para parpadeo
-        let mouthInterval = null;    // Intervalo para boca al hablar
         let isTyping = false; // Bandera para evitar la superposición de mensajes
         let isGuestMode = false; // Controla si se guarda en localStorage
 
@@ -582,12 +495,10 @@
             if (isTyping) {
                 clearTimeout(window.typingTimer);
                 messageBox.textContent = "";
-                stopMouthAnimation();
                 isTyping = false;
             }
 
             isTyping = true;
-            startMouthAnimation(); // Iniciar animación de boca
             let i = 0;
             messageBox.textContent = ''; // Limpiar
             
@@ -598,7 +509,6 @@
                     window.typingTimer = setTimeout(type, delay);
                 } else {
                     isTyping = false;
-                    stopMouthAnimation(); // Detener animación de boca
                 }
             }
             type();
@@ -629,11 +539,9 @@
             timeDisplayDigital.textContent = formatTimeDigital(petStateLocal.timeLived);
             timeDisplayStage.textContent = formatLifeStage(petStateLocal.timeLived);
             statusDisplay.textContent = petStateLocal.status;
+            faceDisplay.textContent = petStateLocal.face;
             
-            // 3. Actualizar la cara del robot
-            updateRobotFace(petStateLocal.face);
-            
-            // 4. Mostrar el estado del modo
+            // 3. Mostrar el estado del modo
             if (isGuestMode) {
                  userIdDisplay.textContent = "Modo Invitado (No se guarda)";
                  toggleModeButton.textContent = "Volver al Modo Guardado";
@@ -647,72 +555,6 @@
                 modeStatusMessage.classList.remove('text-red-600');
                 modeStatusMessage.classList.add('text-green-600');
             }
-        }
-        
-        // Actualiza la cara del robot según la expresión
-        function updateRobotFace(expressionName) {
-            const expr = EXPRESSIONS[expressionName] || EXPRESSIONS.normal;
-            
-            // Actualizar ojos
-            document.querySelectorAll('.pixelito-eyes .eye-open').forEach(el => {
-                el.textContent = expr.eyes;
-            });
-            document.querySelectorAll('.pixelito-eyes .eye-closed').forEach(el => {
-                el.textContent = expr.eyesClosed;
-            });
-            
-            // Actualizar boca
-            document.querySelectorAll('.pixelito-mouth .mouth-normal').forEach(el => {
-                el.textContent = expr.mouth;
-            });
-            document.querySelectorAll('.pixelito-mouth .mouth-talking').forEach(el => {
-                el.textContent = expr.mouthTalk;
-            });
-        }
-        
-        // Función de parpadeo automático
-        function startBlinking() {
-            if (blinkInterval) clearInterval(blinkInterval);
-            
-            blinkInterval = setInterval(() => {
-                // No parpadear si está dormido
-                if (petStateLocal.face === 'sleeping') return;
-                
-                const eyes = document.querySelectorAll('.pixelito-eyes');
-                eyes.forEach(eye => eye.classList.add('blinking'));
-                
-                // Cerrar ojos por 150ms
-                setTimeout(() => {
-                    eyes.forEach(eye => eye.classList.remove('blinking'));
-                }, 150);
-            }, 3000 + Math.random() * 2000); // Parpadeo aleatorio cada 3-5 segundos
-        }
-        
-        // Función para animar la boca al hablar
-        function startMouthAnimation() {
-            if (mouthInterval) clearInterval(mouthInterval);
-            
-            const mouth = document.querySelectorAll('.pixelito-mouth');
-            mouth.forEach(m => m.classList.add('talking'));
-            
-            let mouthOpen = true;
-            mouthInterval = setInterval(() => {
-                if (mouthOpen) {
-                    mouth.forEach(m => m.classList.remove('talking'));
-                } else {
-                    mouth.forEach(m => m.classList.add('talking'));
-                }
-                mouthOpen = !mouthOpen;
-            }, 150); // Alternar cada 150ms
-        }
-        
-        function stopMouthAnimation() {
-            if (mouthInterval) {
-                clearInterval(mouthInterval);
-                mouthInterval = null;
-            }
-            const mouth = document.querySelectorAll('.pixelito-mouth');
-            mouth.forEach(m => m.classList.remove('talking'));
         }
 
         // --- Lógica del Juego (Interacciones) ---
@@ -744,28 +586,28 @@
 
         // Event Listeners para los botones
         document.getElementById('btn-eat').addEventListener('click', () => 
-            handleAction("Comer", { hunger: petStateLocal.hunger + 30, happiness: petStateLocal.happiness + 5, energy: petStateLocal.energy + 10 }, "comiendo un byte de felicidad", "eating")
+            handleAction("Comer", { hunger: petStateLocal.hunger + 30, happiness: petStateLocal.happiness + 5, energy: petStateLocal.energy + 10 }, "comiendo un byte de felicidad", "( ^-^ )")
         );
         document.getElementById('btn-study').addEventListener('click', () => 
-            handleAction("Estudio", { work: petStateLocal.work + 20, energy: petStateLocal.energy - 15, happiness: petStateLocal.happiness - 5, discipline: petStateLocal.discipline + 10 }, "descifrando el código binario del universo", "studying")
+            handleAction("Estudio", { work: petStateLocal.work + 20, energy: petStateLocal.energy - 15, happiness: petStateLocal.happiness - 5, discipline: petStateLocal.discipline + 10 }, "descifrando el código binario del universo", "( o_o )")
         );
         document.getElementById('btn-sleep').addEventListener('click', () => 
-            handleAction("Dormir", { energy: 100, hunger: petStateLocal.hunger - 10, discipline: petStateLocal.discipline + 5 }, "iniciando el modo de hibernación profunda", "sleeping")
+            handleAction("Dormir", { energy: 100, hunger: petStateLocal.hunger - 10, discipline: petStateLocal.discipline + 5 }, "iniciando el modo de hibernación profunda", "( zZz )")
         );
         document.getElementById('btn-play').addEventListener('click', () => 
-            handleAction("Jugar", { happiness: petStateLocal.happiness + 20, energy: petStateLocal.energy - 10, discipline: petStateLocal.discipline - 5 }, "saltando a través de los píxeles", "playing")
+            handleAction("Jugar", { happiness: petStateLocal.happiness + 20, energy: petStateLocal.energy - 10, discipline: petStateLocal.discipline - 5 }, "saltando a través de los píxeles", "( •v• )")
         );
         document.getElementById('btn-gym').addEventListener('click', () => 
-            handleAction("Gimnasio", { work: petStateLocal.work + 10, energy: petStateLocal.energy - 20, hygiene: petStateLocal.hygiene - 10 }, "levantando archivos corruptos pesados", "gym")
+            handleAction("Gimnasio", { work: petStateLocal.work + 10, energy: petStateLocal.energy - 20, hygiene: petStateLocal.hygiene - 10 }, "levantando archivos corruptos pesados", "( >o< )")
         );
         document.getElementById('btn-evolve').addEventListener('click', () => 
-            handleAction("Evolución", {}, "concentrándose en el próximo nivel de existencia...", "excited")
+            handleAction("Evolución", {}, "concentrándose en el próximo nivel de existencia...", "( O_O )")
         ); 
         document.getElementById('btn-clean').addEventListener('click', () => 
-            handleAction("Limpieza", { hygiene: 100, happiness: petStateLocal.happiness + 5 }, "depurando su código interno", "happy")
+            handleAction("Limpieza", { hygiene: 100, happiness: petStateLocal.happiness + 5 }, "depurando su código interno", "( ^_^ )")
         );
         document.getElementById('btn-work').addEventListener('click', () => 
-            handleAction("Trabajar", { work: petStateLocal.work + 25, energy: petStateLocal.energy - 25, happiness: petStateLocal.happiness - 10 }, "procesando datos vitales para la red", "working")
+            handleAction("Trabajar", { work: petStateLocal.work + 25, energy: petStateLocal.energy - 25, happiness: petStateLocal.happiness - 10 }, "procesando datos vitales para la red", "( $_$ )")
         );
 
         // Lógica de Reinicio con Modal
@@ -846,26 +688,26 @@
 
         function updatePetStatus() {
             let status = "El Ciudadano Ejemplar";
-            let face = "normal";
+            let face = "( •-• )";
 
             if (petStateLocal.hunger >= 90) {
-                status = "¡Hambriento!";
-                face = "crying";
+                status = "¡Hambriento! Nivel de peligro. Si no le das de comer pronto, su felicidad disminuirá.";
+                face = "( Q_Q )";
             } else if (petStateLocal.energy <= 10) {
-                status = "¡Agotado!";
-                face = "tired";
+                status = "¡Agotado! Necesita Dormir. ¡Tu mascota no tiene energía y puede enfermar! Actúa rápido.";
+                face = "( x_x )";
             } else if (petStateLocal.hygiene <= 10) {
-                status = "Sucio";
-                face = "dirty";
+                status = "Sucio. ¡Necesita un baño! La higiene baja puede afectar su salud.";
+                face = "( -.- )";
             } else if (petStateLocal.happiness <= 20) {
-                status = "Deprimido";
-                face = "sad";
+                status = "Deprimido. Juega con Pixelito para aumentar su moral.";
+                face = "( ;_; )";
             } else if (petStateLocal.timeLived > 60 && petStateLocal.status === "Huevo") {
-                 status = "Pixelito Joven";
-                 face = "happy";
+                 status = "Pixelito Joven. ¡Ha eclosionado!";
+                 face = "( •u• )";
             } else {
-                 status = "Ciudadano Ejemplar";
-                 face = "happy";
+                 status = "El Ciudadano Ejemplar";
+                 face = "( ^.^ )";
             }
 
             // Solo actualizamos si el estado o la cara cambian
@@ -885,7 +727,6 @@
             // Detener bucles existentes
             if (gameLoopInterval) clearInterval(gameLoopInterval);
             if (messageInterval) clearInterval(messageInterval);
-            if (blinkInterval) clearInterval(blinkInterval);
             
             isGuestMode = !loadSaved; // Si loadSaved es true, NO es modo invitado (isGuestMode=false)
 
@@ -895,12 +736,6 @@
                 if (savedState) {
                     try {
                         petStateLocal = JSON.parse(savedState);
-                        // Asegurar compatibilidad con estados antiguos
-                        if (!petStateLocal.eyes) petStateLocal.eyes = "●";
-                        if (!petStateLocal.mouth) petStateLocal.mouth = "───";
-                        if (petStateLocal.face && petStateLocal.face.includes("(")) {
-                            petStateLocal.face = "normal"; // Convertir formato antiguo
-                        }
                         typeMessage("¡Bienvenido de vuelta! Datos cargados.");
                     } catch (e) {
                         console.error("Error al parsear el estado guardado. Usando estado por defecto.", e);
@@ -921,7 +756,6 @@
             renderUI();
             gameLoopInterval = setInterval(gameLoop, 1000); // 1 segundo
             messageInterval = setInterval(displayRandomMessage, 10000); // 10 segundos
-            startBlinking(); // Iniciar parpadeo automático
         }
         
         // Listener para alternar el modo de juego
