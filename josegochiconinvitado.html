@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixelito - V-Pet (Evolución Poligonal)</title>
+    <!-- Incluir Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluir iconos de Lucide (opcional, pero genial para los botones) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        /* Configuración de fuente pixelada para la pantalla */
+        .pixel-font {
+            font-family: 'VT323', monospace;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 1. Estilo para el dispositivo exterior (Cuerpo Color Crema/Blanco Roto) */
+        .pet-device {
+            width: 100%;
+            /* Escalado: 400px * 1.5 = 600px */
+            max-width: 600px;
+            background: #e0e0e0; /* Crema/Gris muy claro */
+            /* Escalado: 4px * 1.5 = 6px */
+            border: 6px solid #333;
+            /* Escalado: 40px * 1.5 = 60px */
+            border-radius: 60px; 
+            /* Escalado: 1rem * 1.5 = 1.5rem */
+            padding: 1.5rem; 
+            box-shadow: 
+                0 15px 30px rgba(0,0,0,0.5), /* Sombra escalada */
+                inset 0 0 20px rgba(255,255,255,0.8); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 2. Estilo para la pantalla del dispositivo (Área del Pixelito) */
+        .pet-screen-container {
+            /* Bezel negro grueso */
+            background-color: #000;
+            /* Escalado: 10px * 1.5 = 15px */
+            border-radius: 15px; 
+            padding: 15px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            /* Escalado: 180px * 1.5 = 270px */
+            height: 270px; 
+            margin-bottom: 1.5rem; /* Espacio antes de las barras */
+        }
+
+        .pet-screen {
+            background-color: #a7c08a; /* Color verde/gris de pantalla retro (Game Boy) */
+            box-shadow: inset 0 0 7px rgba(0, 0, 0, 0.4);
+            border-radius: 8px; /* Escalado */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            /* Escalado: 0.5rem * 1.5 = 0.75rem */
+            padding: 0.75rem; 
+            position: relative; 
+        }
+        
+        /* Estilo para la caja de mensajes estilo Pokémon */
+        #action-message-box {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #000; 
+            color: #fff;
+            padding: 7px 12px; /* Escalado */
+            border-radius: 5px; /* Escalado */
+            border-top: 3px solid #fff; /* Escalado */
+            opacity: 0; 
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none; 
+            z-index: 10;
+        }
+        
+        #action-message {
+            /* Escalado: 0.8rem * 1.5 = 1.2rem (aprox) */
+            font-size: 1.2rem;
+            line-height: 1.2;
+            text-shadow: none;
+            text-align: left;
+        }
+
+
+        /* 3. Estilo para las barras de estado */
+        .stat-bar-container {
+            width: 100%;
+            background-color: #333; 
+            border: 2px solid #000; /* Escalado */
+            padding: 2px; /* Escalado */
+            border-radius: 3px; /* Escalado */
+            /* Escalado: 10px * 1.5 = 15px */
+            height: 15px; 
+        }
+        
+        .stat-bar-label {
+            width: 40%; 
+            text-align: right;
+            padding-right: 8px; /* Escalado */
+            /* Escalado: 0.7rem * 1.5 = 1.05rem (usaremos 1rem) */
+            font-size: 1rem; 
+            color: #4b5563; 
+        }
+        
+        /* Ajuste de contenedores de barras para alineación vertical */
+        .stat-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* Espacio entre barras (escalado) */
+            width: 100%;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 4. Estilo para el bloque de vida/estado general */
+        .info-block {
+            width: 90%;
+            margin-top: 2.25rem; /* Escalado: 1.5rem * 1.5 */
+            margin-bottom: 2.25rem; /* Escalado: 1.5rem * 1.5 */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px; /* Escalado */
+        }
+
+        .info-box {
+            background-color: #f3f4f6;
+            border: 3px solid #333; /* Escalado */
+            border-radius: 8px; /* Escalado */
+            padding: 0.75rem; /* Escalado */
+            text-align: center;
+            box-shadow: inset 0 0 7px rgba(0, 0, 0, 0.2); /* Escalado */
+        }
+
+        /* 5. Estilo para los botones CIRCULARES con efecto 3D */
+        .grid-9-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px; /* Escalado: 15px * 1.5 = 22.5px */
+            width: 90%;
+            margin-bottom: 0.75rem; /* Escalado */
+        }
+        
+        .pet-button {
+            /* Escalado: 60px * 1.5 = 90px */
+            width: 90px; 
+            height: 90px;
+            border-radius: 50%; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: all 0.05s;
+            border: 3px solid #333; /* Escalado */
+            /* Escalado: 0.65rem * 1.5 = 0.975rem (usaremos 1rem) */
+            font-size: 1rem; 
+            line-height: 1.1;
+        }
+        
+        /* Efecto 3D de Presión (Escalado) */
+        .shadow-dark {
+            box-shadow: 0 6px #1f2937; /* Escalado */
+        }
+        .shadow-dark:active {
+            box-shadow: 0 0 #1f2937;
+            transform: translateY(6px);
+        }
+
+        /* Sombras específicas para botones de colores (Escalado) */
+        .pet-button.bg-red-500 { box-shadow: 0 6px #b91c1c; }
+        .pet-button.bg-red-500:active { box-shadow: 0 0 #b91c1c; transform: translateY(6px); }
+        
+        .pet-button.bg-green-500 { box-shadow: 0 6px #065f46; }
+        .pet-button.bg-green-500:active { box-shadow: 0 0 #065f46; transform: translateY(6px); }
+        
+        .pet-button.bg-blue-500 { box-shadow: 0 6px #1e40af; }
+        .pet-button.bg-blue-500:active { box-shadow: 0 0 #1e40af; transform: translateY(6px); }
+        
+        .pet-button.bg-yellow-500 { box-shadow: 0 6px #a16207; }
+        .pet-button.bg-yellow-500:active { box-shadow: 0 0 #a16207; transform: translateY(6px); }
+
+        /* Estilo para botón Evolución Deshabilitado (Gris) */
+        .pet-button[disabled] {
+            cursor: not-allowed;
+            box-shadow: 0 6px #4b5563; /* Sombra oscura para el gris */
+            filter: grayscale(0.5);
+            opacity: 0.7;
+        }
+        .pet-button[disabled]:active {
+            box-shadow: 0 6px #4b5563; 
+            transform: translateY(0);
+        }
+        
+    </style>
+    <!-- Firebase SDK Imports (Module style) -->
+    <script type="module">
+        // Importaciones de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let isAuthReady = false;
+        let isGuestMode = false; // Bandera para el modo invitado
+
+        // Estado inicial del Pixelito (6 estadísticas)
+        let petState = {
+            bornTime: Date.now(),
+            lastUpdate: Date.now(),
+            lifeSeconds: 0,
+            work: 0, 
+            hunger: 0, 
+            happiness: 100,
+            energy: 100,      
+            hygiene: 100,     
+            discipline: 100,  
+            stage: 1,
+        };
+        
+        // --- Configuraciones ---
+
+        // Tiempos en segundos para las evoluciones
+        const SECONDS_30 = 30;
+        const MINUTES_30 = 30 * 60;
+        const HOURS_2 = 2 * 3600;
+        const HOURS_8 = 8 * 3600;
+        const HOURS_24 = 24 * 3600;
+
+        // Requisito de felicidad mínima para forzar la evolución
+        const MIN_HAPPINESS_TO_EVOLVE = 50; 
+
+        // Configuración de la evolución (Poligonal y tiempos largos)
+        const evolutionStages = {
+            1: { name: "Esfera Simple", minSeconds: 0, pixel: "( • • )", color: "text-white" }, // Bola con 2 ojos
+            2: { name: "Cuadrado Inestable", minSeconds: SECONDS_30, pixel: "[ 👁️ 👁️ ]", color: "text-yellow-400" }, // Cuadrado
+            3: { name: "Triángulo Deforme", minSeconds: MINUTES_30, pixel: "◢▱◣", color: "text-purple-400" }, // Triángulo/Polígono simple
+            4: { name: "Mutante Cúbico", minSeconds: HOURS_2, pixel: "( ⩺_⩹ )", color: "text-red-400" }, // Polígono complejo
+            5: { name: "Forma Final", minSeconds: HOURS_8, pixel: "̴|̸\̴ ̸ |̴\̴|", color: "text-cyan-400" }, // Forma perturbadora
+            6: { name: "Forma Suprema", minSeconds: HOURS_24, pixel: "Σ(°д°|||)", color: "text-lime-400" }, // Forma más allá
+        };
+        
+        // Títulos de Estado General
+        const generalStatuses = {
+            PERFECT: "El Monarca Digital",
+            EXCELLENT: "El Ideal Cibernético",
+            OPTIMAL: "Estrella Píxel Brillante",
+            GOOD: "El Ciudadano Ejemplar",
+            STABLE: "La Esfera de Equilibrio",
+            CALM: "El Viajero Tranquilo",
+            NEUTRAL: "Píxel en Piloto Automático",
+            HUNGRY: "El Glotón Perpetuo",
+            EXHAUSTED: "El Guerrero Agotado",
+            NEEDS_LOVE: "¡Necesita Cariño!",
+            SICK: "Píxel Sucio/Enfermito",
+            CRITICAL_WORK: "¡SOBRECARGADO!", 
+            CRITICAL_HAPPINESS: "Depresión Crítica",
+            LOW_ENERGY: "La Batería Baja",
+        };
+
+
+        // --- Elementos del DOM ---
+        const lifeDisplayEl = document.getElementById('life-display');
+        const generalStatusEl = document.getElementById('general-status-text');
+        
+        // Stats
+        const workEl = document.getElementById('work-bar-fill'); 
+        const hungerEl = document.getElementById('hunger-bar-fill');
+        const happinessEl = document.getElementById('happiness-bar-fill');
+        const energyEl = document.getElementById('energy-bar-fill');
+        const hygieneEl = document.getElementById('hygiene-bar-fill');
+        const disciplineEl = document.getElementById('discipline-bar-fill');
+        
+        const pixelitoEl = document.getElementById('pixelito');
+        const actionMessageBoxEl = document.getElementById('action-message-box');
+        const actionMessageEl = document.getElementById('action-message');
+        const btnEvoEl = document.getElementById('btn-evolution');
+        
+        const userIdDisplayEl = document.getElementById('user-id-display');
+
+
+        // --- Utilidades ---
+
+        /**
+         * Muestra un mensaje temporal en el área de acción (caja estilo Pokémon).
+         * @param {string} message Mensaje a mostrar.
+         */
+        function displayActionMessage(message) {
+            actionMessageEl.textContent = message;
+            actionMessageBoxEl.style.opacity = '1';
+            setTimeout(() => {
+                actionMessageBoxEl.style.opacity = '0';
+            }, 3000);
+        }
+
+        /**
+         * Calcula el estado general de Pixelito basado en sus estadísticas (6 stats).
+         * @returns {string} Título de estado general.
+         */
+        function getGeneralStatus() {
+            const { work, hunger, happiness, hygiene, energy, discipline } = petState;
+            
+            // Lógica de prioridades: Peor estado tiene prioridad
+            if (work >= 95) return generalStatuses.CRITICAL_WORK; 
+            if (hunger >= 95) return generalStatuses.HUNGRY;
+            if (happiness <= 5) return generalStatuses.CRITICAL_HAPPINESS; 
+            if (hygiene <= 10) return generalStatuses.SICK; 
+            if (energy <= 10) return generalStatuses.LOW_ENERGY;
+            if (discipline <= 10) return generalStatuses.EXHAUSTED;
+
+            // Estados de alerta moderada
+            if (hunger >= 70) return generalStatuses.HUNGRY;
+            if (happiness <= 30) return generalStatuses.NEEDS_LOVE;
+            if (energy <= 20) return generalStatuses.LOW_ENERGY;
+            if (hygiene <= 30) return generalStatuses.SICK; 
+
+            // Combinaciones de buen estado (Promedio de las 6 stats)
+            const stats = [100 - work, 100 - hunger, happiness, energy, hygiene, discipline];
+            const averageStat = stats.reduce((sum, current) => sum + current, 0) / stats.length;
+
+            if (averageStat >= 90) return generalStatuses.PERFECT;
+            if (averageStat >= 80) return generalStatuses.EXCELLENT;
+            if (averageStat >= 70) return generalStatuses.OPTIMAL;
+            if (averageStat >= 60) return generalStatuses.GOOD;
+            if (averageStat >= 40) return generalStatuses.STABLE;
+
+            return generalStatuses.NEUTRAL;
+        }
+
+        /**
+         * Convierte segundos en una cadena legible de tiempo completo.
+         */
+        function formatLifeTime(totalSeconds) {
+            if (totalSeconds < 0) totalSeconds = 0;
+            
+            const SECONDS_IN_MINUTE = 60;
+            const SECONDS_IN_HOUR = 3600;
+            const SECONDS_IN_DAY = 86400;
+
+            let remainingSeconds = Math.floor(totalSeconds);
+
+            const days = Math.floor(remainingSeconds / SECONDS_IN_DAY);
+            remainingSeconds %= SECONDS_IN_DAY;
+
+            const hours = Math.floor(remainingSeconds / SECONDS_IN_HOUR);
+            remainingSeconds %= SECONDS_IN_HOUR;
+
+            const minutes = Math.floor(remainingSeconds / SECONDS_IN_MINUTE);
+            remainingSeconds %= SECONDS_IN_MINUTE;
+
+            const seconds = remainingSeconds;
+
+            const parts = [];
+            if (days > 0) parts.push(`${days}d`);
+            if (hours > 0) parts.push(`${hours}h`);
+            if (minutes > 0) parts.push(`${minutes}m`);
+            parts.push(`${seconds}s`); 
+
+            return parts.join(' ');
+        }
+
+        /**
+         * Determina el nivel de evolución máximo alcanzado por tiempo.
+         */
+        function getEvolutionEligibility() {
+            const currentSeconds = petState.lifeSeconds; 
+            let highestStageReached = petState.stage;
+            
+            for (const key in evolutionStages) {
+                const stageData = evolutionStages[key];
+                if (currentSeconds >= stageData.minSeconds) {
+                    highestStageReached = parseInt(key);
+                }
+            }
+            return highestStageReached;
+        }
+
+        /**
+         * Actualiza el estado del botón de evolución.
+         */
+        function updateEvolutionButtonState() {
+            const highestEligibleStage = getEvolutionEligibility();
+            const canEvolve = highestEligibleStage > petState.stage;
+            const isHappyEnough = petState.happiness >= MIN_HAPPINESS_TO_EVOLVE;
+
+            if (canEvolve && isHappyEnough) {
+                // Activar (Naranja)
+                btnEvoEl.disabled = false;
+                btnEvoEl.classList.remove('bg-gray-400');
+                btnEvoEl.classList.add('bg-orange-500');
+            } else {
+                // Desactivar (Gris)
+                btnEvoEl.disabled = true;
+                btnEvoEl.classList.remove('bg-orange-500');
+                btnEvoEl.classList.add('bg-gray-400');
+            }
+        }
+
+        /**
+         * Aplica los valores del estado a la interfaz.
+         */
+        function renderPet() {
+            const { lifeSeconds, work, hunger, happiness, energy, hygiene, discipline, stage } = petState;
+
+            // 1. Actualizar el contador de vida y estado general
+            lifeDisplayEl.textContent = formatLifeTime(lifeSeconds);
+            generalStatusEl.textContent = getGeneralStatus();
+
+            // 2. Actualizar barras de estado (6 barras)
+            workEl.style.width = `${work}%`;
+            workEl.className = `h-full rounded transition-all duration-500 bg-purple-500`;
+            
+            hungerEl.style.width = `${hunger}%`;
+            hungerEl.className = `h-full rounded transition-all duration-500 bg-yellow-500`;
+
+            happinessEl.style.width = `${happiness}%`;
+            happinessEl.className = `h-full rounded transition-all duration-500 bg-green-500`;
+
+            energyEl.style.width = `${energy}%`;
+            energyEl.className = `h-full rounded transition-all duration-500 bg-blue-500`;
+            
+            hygieneEl.style.width = `${hygiene}%`;
+            hygieneEl.className = `h-full rounded transition-all duration-500 bg-cyan-500`;
+
+            disciplineEl.style.width = `${discipline}%`;
+            disciplineEl.className = `h-full rounded transition-all duration-500 bg-red-500`;
+
+            // 3. Actualizar la apariencia del Pixelito
+            const currentStage = evolutionStages[stage] || evolutionStages[1];
+            
+            // Comprobación de estado crítico para anular el sprite de etapa
+            if (petState.happiness <= 10) { 
+                pixelitoEl.textContent = "ಥ_ಥ"; // Mostrar cara de tristeza
+            } else if (petState.work >= 80 || petState.hunger >= 80) {
+                 pixelitoEl.textContent = "ಠ_ಠ"; // Mostrar cara de enojo/molestia
+            } else {
+                 pixelitoEl.textContent = currentStage.pixel;
+            }
+            
+            // Escalado del texto de Pixelito: text-5xl -> text-6xl
+            pixelitoEl.className = `pixel-font text-6xl transition-colors duration-500 ${currentStage.color}`;
+
+            // 4. Actualizar estado del botón de evolución
+            updateEvolutionButtonState();
+        }
+        
+        // --- Lógica del Juego ---
+
+        /**
+         * Reinicia el estado del Pixelito.
+         */
+        function resetPet() {
+            const modal = document.getElementById('reset-modal');
+            modal.classList.remove('hidden');
+
+            document.getElementById('confirm-reset').onclick = async () => {
+                modal.classList.add('hidden');
+                const now = Date.now();
+                petState = {
+                    bornTime: now,
+                    lastUpdate: now,
+                    lifeSeconds: 0,
+                    work: 0, 
+                    hunger: 0,
+                    happiness: 100,
+                    energy: 100,
+                    hygiene: 100,
+                    discipline: 100,
+                    stage: 1,
+                };
+                
+                await savePetState(); // Guardará solo si no estamos en Modo Invitado
+                renderPet(); 
+                displayActionMessage("¡Pixelito Reiniciado! (Esfera Simple)");
+                startGameLoop(); 
+            };
+
+            document.getElementById('cancel-reset').onclick = () => {
+                modal.classList.add('hidden');
+            };
+        }
+
+        /**
+         * Aplica la acción a las estadísticas.
+         * @param {string} type Tipo de acción.
+         */
+        function applyAction(type) {
+            let message = '';
+            
+            switch (type) {
+                case 'eat': 
+                    petState.hunger = Math.max(0, petState.hunger - 40);
+                    petState.happiness = Math.min(100, petState.happiness + 15);
+                    petState.hygiene = Math.max(0, petState.hygiene - 5); 
+                    petState.work = Math.max(0, petState.work - 5); 
+                    message = "¡Ñam ñam! Pixelito está comiendo.";
+                    break;
+                case 'study': 
+                    petState.happiness = Math.max(0, petState.happiness - 5); 
+                    petState.discipline = Math.min(100, petState.discipline + 40); 
+                    petState.hunger = Math.min(100, petState.hunger + 15); 
+                    petState.energy = Math.max(0, petState.energy - 20); 
+                    petState.work = Math.min(100, petState.work + 15); 
+                    message = "Pixelito estudia. ¡Aplicado!";
+                    break;
+                case 'sleep': 
+                    petState.energy = Math.min(100, petState.energy + 50); 
+                    petState.happiness = Math.min(100, petState.happiness + 10);
+                    petState.discipline = Math.max(0, petState.discipline - 5); 
+                    petState.work = Math.max(0, petState.work - 25); 
+                    message = "Zzz... Durmiendo. Recargando.";
+                    break;
+                case 'play': 
+                    petState.happiness = Math.min(100, petState.happiness + 30);
+                    petState.hunger = Math.min(100, petState.hunger + 10); 
+                    petState.energy = Math.max(0, petState.energy - 15); 
+                    petState.discipline = Math.max(0, petState.discipline - 10); 
+                    petState.work = Math.max(0, petState.work - 10); 
+                    message = "¡Wiiii! Jugando con la pelota.";
+                    break;
+                case 'gym': 
+                    petState.happiness = Math.min(100, petState.happiness + 5); 
+                    petState.hunger = Math.min(100, petState.hunger + 25); 
+                    petState.energy = Math.max(0, petState.energy - 30); 
+                    petState.hygiene = Math.max(0, petState.hygiene - 15); 
+                    petState.work = Math.min(100, petState.work + 20); 
+                    message = "¡Fuerza! En el gimnasio.";
+                    break;
+                case 'clean': 
+                    petState.hygiene = Math.min(100, petState.hygiene + 50); 
+                    petState.happiness = Math.min(100, petState.happiness + 15); 
+                    message = "Pixelito está limpio. ✨";
+                    break;
+                case 'work': 
+                    petState.discipline = Math.min(100, petState.discipline + 20);
+                    petState.hunger = Math.min(100, petState.hunger + 30); 
+                    petState.happiness = Math.max(0, petState.happiness - 15); 
+                    petState.energy = Math.max(0, petState.energy - 25);
+                    petState.work = Math.min(100, petState.work + 40); 
+                    message = "Trabajando duro. 💼";
+                    break;
+            }
+            
+            // Reconciliar y guardar el estado
+            petState.lastUpdate = Date.now();
+            savePetState();
+            renderPet();
+            displayActionMessage(message);
+        }
+        
+        /**
+         * Maneja el evento de pulsar el botón de evolución (solo si está activo).
+         */
+        function handleEvolution() {
+            if (btnEvoEl.disabled) {
+                // Comprobar la razón del por qué no puede evolucionar
+                const highestEligibleStage = getEvolutionEligibility();
+                const canEvolveByTime = highestEligibleStage > petState.stage;
+                const isHappyEnough = petState.happiness >= MIN_HAPPINESS_TO_EVOLVE;
+                
+                if (!canEvolveByTime) {
+                    displayActionMessage("Aún no tienes el tiempo suficiente para evolucionar a una nueva forma.");
+                } else if (!isHappyEnough) {
+                     displayActionMessage(`¡No está lo suficientemente feliz! Necesita más de ${MIN_HAPPINESS_TO_EVOLVE}% de felicidad.`);
+                } else {
+                     displayActionMessage("Aún no está listo para evolucionar (Chequea tiempo y felicidad).");
+                }
+                return;
+            }
+
+            // Si el botón NO está deshabilitado, podemos forzar la evolución a la etapa más alta disponible por tiempo
+            const highestEligibleStage = getEvolutionEligibility();
+            
+            if (highestEligibleStage > petState.stage) {
+                const oldStage = petState.stage;
+                petState.stage = highestEligibleStage;
+                savePetState();
+                renderPet();
+                displayActionMessage(`¡EVOLUCIÓN FORZADA! Ahora es ${evolutionStages[petState.stage].name}.`);
+            } else {
+                displayActionMessage("Error de evolución: El Pixelito ya está en la etapa más alta disponible por su tiempo.");
+            }
+            
+            updateEvolutionButtonState(); // Actualizar el estado del botón inmediatamente
+        }
+        
+        // --- Bucle principal del juego (Game Loop) ---
+        let gameLoopInterval;
+        let lastTime = Date.now();
+        const MS_PER_SEC = 1000;
+
+        /**
+         * Bucle de actualización del juego.
+         */
+        function gameLoop() {
+            const now = Date.now();
+            const dtReal = (now - lastTime) / MS_PER_SEC; 
+            lastTime = now;
+            const dtSimulated = dtReal; 
+
+            // 1. Actualizar el tiempo de vida
+            petState.lifeSeconds += dtSimulated;
+
+            // 2. Aplicar el deterioro de las estadísticas
+            const decayFactor = dtSimulated * 0.05; 
+
+            petState.hunger = Math.min(100, petState.hunger + decayFactor * 1.5); 
+            petState.energy = Math.max(0, petState.energy - decayFactor * 1.5); 
+            petState.hygiene = Math.max(0, petState.hygiene - decayFactor * 0.8);
+            petState.discipline = Math.max(0, petState.discipline - decayFactor * 0.3); 
+            petState.work = Math.max(0, petState.work - decayFactor * 0.5); 
+
+            // Deterioro de Felicidad 
+            let happinessDecay = decayFactor * 0.5;
+            if (petState.hunger >= 50) happinessDecay += decayFactor * 0.5; 
+            if (petState.hygiene <= 30) happinessDecay += decayFactor * 1.0; 
+            if (petState.work >= 70) happinessDecay += decayFactor * 0.8; 
+            petState.happiness = Math.max(0, petState.happiness - happinessDecay);
+            
+            // 3. Guardar el estado periódicamente y renderizar
+            // Guardar solo si el juego ha estado corriendo por al menos 1 segundo y cada 10 segundos.
+            if (!isGuestMode && Math.floor(petState.lifeSeconds) % 10 === 0 && dtReal > 0.01) {
+                petState.lastUpdate = now;
+                savePetState();
+            }
+
+            renderPet();
+        }
+
+        /**
+         * Inicia o reanuda el bucle del juego.
+         */
+        function startGameLoop() {
+             if (gameLoopInterval) clearInterval(gameLoopInterval);
+             lastTime = Date.now(); 
+             renderPet(); 
+             // El bucle corre 10 veces por segundo para una simulación más fluida
+             gameLoopInterval = setInterval(gameLoop, 100); 
+        }
+
+        // --- Lógica de persistencia (Firestore) ---
+        
+        /**
+         * Guarda el estado actual del Pixelito en Firestore.
+         */
+        async function savePetState() {
+            if (isGuestMode || !isAuthReady || !userId) {
+                return;
+            }
+
+            try {
+                // Ruta: /artifacts/{appId}/users/{userId}/pet/state
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'pet', 'state');
+                await setDoc(docRef, petState);
+            } catch (e) {
+                console.error("Error al guardar en Firestore:", e);
+            }
+        }
+
+        /**
+         * Inicializa Firebase, autentica y carga el estado del Pixelito.
+         */
+        async function initializeFirebaseAndLoad() {
+            
+            const hasValidConfig = Object.keys(firebaseConfig).length > 0;
+
+            if (!hasValidConfig) {
+                // --- MODO INVITADO / TESTING LOCAL (SIN FIREBASE) ---
+                isGuestMode = true;
+                isAuthReady = true;
+                userId = crypto.randomUUID ? crypto.randomUUID() : 'GUEST_' + Math.random().toString(36).substring(2, 9);
+                userIdDisplayEl.textContent = userId + " (INVITADO - Sin Guardado)";
+                
+                petState.lastUpdate = Date.now();
+                petState.bornTime = Date.now();
+                
+                startGameLoop(); 
+                displayActionMessage("Modo Invitado: ¡El progreso NO se guardará!");
+                return; 
+            }
+            
+            // --- MODO FIREBASE (CON PERSISTENCIA) ---
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('error'); 
+
+                // 2. Autenticación
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // 3. Listener de estado de autenticación
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplayEl.textContent = userId; 
+                        isAuthReady = true;
+
+                        // 4. Listener del documento de Firestore
+                        const docRef = doc(db, 'artifacts', appId, 'users', userId, 'pet', 'state');
+                        
+                        onSnapshot(docRef, async (docSnapshot) => { 
+                            if (docSnapshot.exists()) {
+                                const savedState = docSnapshot.data();
+                                
+                                petState = savedState;
+                                const now = Date.now();
+                                const timePassedReal = now - petState.lastUpdate; 
+                                const timeToAddSimulated = (timePassedReal / 1000); 
+
+                                petState.lifeSeconds += timeToAddSimulated;
+                                petState.lastUpdate = now; 
+                                
+                                startGameLoop();
+
+                            } else {
+                                petState.lastUpdate = Date.now(); 
+                                await savePetState(); 
+                                startGameLoop(); 
+                            }
+                        }, (error) => {
+                            console.error("Error en onSnapshot de Firestore:", error);
+                        });
+
+                    } else {
+                        isAuthReady = true; 
+                        userIdDisplayEl.textContent = 'Auth Fallida';
+                        startGameLoop();
+                    }
+                });
+
+            } catch (e) {
+                console.error("Error al inicializar Firebase. El juego no persistirá.", e);
+                isGuestMode = true;
+                isAuthReady = true;
+                userId = 'GUEST_FAILOVER';
+                userIdDisplayEl.textContent = userId + " (FALLO - Sin Guardado)";
+                startGameLoop(); 
+            }
+        }
+
+        // Cargar iconos y empezar la inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mapeo de eventos de botones
+            document.getElementById('btn-eat').onclick = () => applyAction('eat');
+            document.getElementById('btn-study').onclick = () => applyAction('study');
+            document.getElementById('btn-sleep').onclick = () => applyAction('sleep');
+            document.getElementById('btn-play').onclick = () => applyAction('play');
+            document.getElementById('btn-gym').onclick = () => applyAction('gym');
+            document.getElementById('btn-evolution').onclick = handleEvolution; // Usar el nuevo manejador
+            document.getElementById('btn-clean').onclick = () => applyAction('clean');
+            document.getElementById('btn-work').onclick = () => applyAction('work');
+            document.getElementById('btn-reset').onclick = resetPet;
+
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                 lucide.createIcons();
+            }
+            initializeFirebaseAndLoad();
+        });
+
+    </script>
+</head>
+<!-- Aumentado el padding del body a p-6 -->
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
+
+    <!-- Contenedor principal del dispositivo -->
+    <div class="pet-device">
+        
+        <!-- Pantalla del Pixelito y Frases (Bezel Negro exterior) -->
+        <div class="pet-screen-container">
+            <div class="pet-screen">
+                
+                <!-- 1. El Pixelito en sí (Centrado verticalmente) -->
+                <div class="flex-grow flex items-center justify-center text-center w-full">
+                    <!-- Escalado del texto de Pixelito: text-5xl -> text-6xl -->
+                    <span id="pixelito" class="pixel-font text-6xl">ʕ •ᴥ•ʔ</span>
+                </div>
+                
+                <!-- 2. Caja de Mensaje Estilo Pokémon (Absoluto al fondo de la pantalla verde) -->
+                <div id="action-message-box">
+                    <p id="action-message" class="pixel-font">Mensaje</p>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- ÁREA DE BARRAS DE ESTADO Y ESTADO GENERAL (Diseño de ventana Pokémon) -->
+        <div class="w-full flex justify-center mt-6"> <!-- Aumentado mt-4 -> mt-6 -->
+            <div class="w-11/12 grid grid-cols-2 gap-x-6"> <!-- Aumentado gap-x-4 -> gap-x-6 -->
+                
+                <!-- Columna Izquierda: 6 Bares -->
+                <div class="stat-list-container">
+                    <!-- Barra 1: Trabajo (Púrpura - Crece con el trabajo) -->
+                    <div class="stat-item">
+                        <span class="stat-bar-label pixel-font text-purple-700 font-bold">Trabajo:</span>
+                        <div class="w-full stat-bar-container">
+                            <div id="work-bar-fill" class="h-full rounded overflow-hidden" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Barra 2: Hambre (Amarillo - Crece con el hambre) -->
+                    <div class="stat-item">
+                        <span class="stat-bar-label pixel-font text-yellow-700 font-bold">Hambre:</span>
+                        <div class="w-full stat-bar-container">
+                            <div id="hunger-bar-fill" class="h-full rounded overflow-hidden" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Barra 3: Felicidad (Verde) -->
+                    <div class="stat-item">
+                        <span class="stat-bar-label pixel-font text-green-700 font-bold">Felicidad:</span>
+                        <div class="w-full stat-bar-container">
+                            <div id="happiness-bar-fill" class="h-full rounded overflow-hidden" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Barra 4: Energía (Azul) -->
+                    <div class="stat-item">
+                        <span class="stat-bar-label pixel-font text-blue-700 font-bold">Energía:</span>
+                        <div class="w-full stat-bar-container">
+                            <div id="energy-bar-fill" class="h-full rounded overflow-hidden" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Barra 5: Higiene (Cyan) -->
+                    <div class="stat-item">
+                        <span class="stat-bar-label pixel-font text-cyan-700 font-bold">Higiene:</span>
+                        <div class="w-full stat-bar-container">
+                            <div id="hygiene-bar-fill" class="h-full rounded overflow-hidden" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Barra 6: Disciplina (Rojo) -->
+                    <div class="stat-item">
+                        <span class="stat-bar-label pixel-font text-red-700 font-bold">Disciplina:</span>
+                        <div class="w-full stat-bar-container">
+                            <div id="discipline-bar-fill" class="h-full rounded overflow-hidden" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Bloque de Vida/Estado General -->
+                <div class="flex flex-col space-y-4"> <!-- Aumentado space-y-2 -> space-y-4 -->
+                    <!-- Tiempo de Vida -->
+                    <div class="info-box h-1/2">
+                        <!-- Escalado: text-xs -> text-sm -->
+                        <p class="text-sm font-bold text-gray-700 pixel-font">Tiempo de Vida</p>
+                        <!-- Escalado: text-lg -> text-xl -->
+                        <span id="life-display" class="font-bold text-xl text-black pixel-font">0s</span>
+                    </div>
+                    
+                    <!-- Estado General (Título Dinámico) -->
+                    <div class="info-box h-1/2">
+                        <!-- Escalado: text-xs -> text-sm -->
+                        <p class="text-sm font-bold text-gray-700 pixel-font">Estado General</p>
+                         <!-- Escalado: text-lg -> text-xl -->
+                        <span id="general-status-text" class="font-bold text-xl text-black pixel-font">El Ciudadano Ejemplar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Bloque de 9 Botones (Grid 3x3) - Circulares -->
+        <div class="grid-9-buttons mt-8"> <!-- Aumentado mt-6 -> mt-8 -->
+            
+            <!-- Fila 1: Alimentar, Estudio, Dormir -->
+            <button id="btn-eat" class="pet-button bg-green-500 text-white shadow-dark">
+                <!-- Escalado de íconos: w-5 h-5 -> w-7 h-7 -->
+                <i data-lucide="utensils" class="w-7 h-7"></i>
+                <!-- Escalado de mt-1 -> mt-2 -->
+                <span class="mt-2">Comer</span>
+            </button>
+            <button id="btn-study" class="pet-button bg-yellow-500 text-gray-800 shadow-dark">
+                <i data-lucide="book-open" class="w-7 h-7"></i>
+                <span class="mt-2">Estudio</span>
+            </button>
+            <button id="btn-sleep" class="pet-button bg-blue-500 text-white shadow-dark">
+                <i data-lucide="moon" class="w-7 h-7"></i>
+                <span class="mt-2">Dormir</span>
+            </button>
+            
+            <!-- Fila 2: Jugar, Gimnasio, Evo (INICIA DESHABILITADO) -->
+            <button id="btn-play" class="pet-button bg-purple-500 text-white shadow-dark">
+                <i data-lucide="gamepad-2" class="w-7 h-7"></i>
+                <span class="mt-2">Jugar</span>
+            </button>
+            <button id="btn-gym" class="pet-button bg-red-500 text-white shadow-dark">
+                <i data-lucide="dumbbell" class="w-7 h-7"></i>
+                <span class="mt-2">Gimnasio</span>
+            </button>
+            <button id="btn-evolution" class="pet-button bg-gray-400 text-white cursor-not-allowed" disabled>
+                <i data-lucide="wand-2" class="w-7 h-7"></i>
+                <span class="mt-2">Evo</span>
+            </button>
+            
+            <!-- Fila 3: Limpiar, Trabajar, Reset -->
+            <button id="btn-clean" class="pet-button bg-sky-500 text-white shadow-dark">
+                 <i data-lucide="soap-box" class="w-7 h-7"></i>
+                <span class="mt-2">Limpiar</span>
+            </button>
+            <button id="btn-work" class="pet-button bg-gray-600 text-white shadow-dark">
+                 <i data-lucide="briefcase" class="w-7 h-7"></i>
+                <span class="mt-2">Trabajar</span>
+            </button>
+            <button id="btn-reset" class="pet-button bg-red-700 text-white shadow-dark">
+                 <i data-lucide="x-circle" class="w-7 h-7"></i>
+                <span class="mt-2">Reset</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Información de Debug/Usuario -->
+    <p class="mt-3 text-sm text-gray-500">
+        ID de usuario: <span id="user-id-display">Cargando...</span>
+    </p>
+    
+    <!-- Modal de confirmación para Reinicio -->
+    <div id="reset-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-6">
+        <div class="bg-white rounded-xl p-8 shadow-xl w-full max-w-lg">
+            <h3 class="text-xl font-bold mb-5">Confirmar Reinicio</h3>
+            <p class="mb-8 text-lg">¿Estás seguro de que deseas reiniciar a Pixelito? Perderás todo el progreso de vida.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-reset" class="px-5 py-2 text-base font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
+                <button id="confirm-reset" class="px-5 py-2 text-base font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Reiniciar</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

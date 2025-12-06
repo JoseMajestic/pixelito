@@ -1,0 +1,1013 @@
+Tragaperras le bandit
+
+1. Ficha técnica clave
+
+Proveedor: Hacksaw Gaming
+
+Grid: 6x5, sistema Cluster Pays (ganas con grupos de ≥5 símbolos conectados)
+
+RTP “bueno”: 96,34 % (hay versiones recortadas según casino) 
+chipy.com
+
+Volatilidad: media (3/5) 
+chipy.com
+
+Hit frequency: ~32,47 % de spins con premio 
+GamesHub
+
+Max win: 10 000x la apuesta 
+Casino.Guru
+
+Core fantasy: mapache ladrón “Smokey” con estética cartoon-parisina + toque irlandés (sombrero leprechaun, oro, trébol, etc.) 
+Casasdeapuestas.com
+
+Esto ya te posiciona el discurso: no es super high-volatility tipo Wanted Dead or a Wild, pero sí brutal en picos, con una base relativamente jugable.
+
+2. Mecánicas base: qué pasa en un spin “normal”
+2.1. Super Cascades + Cluster Pays
+
+Formas un cluster ganador (≥5 símbolos conectados).
+
+Super Cascades: no se eliminan solo los símbolos del cluster, se elimina ese tipo de símbolo en todo el grid.
+
+Luego caen nuevos símbolos y pueden encadenar más premios sobre el mismo spin.
+
+Impacto de diseño:
+
+Aumenta la sensación de “spin con historia”: una tirada puede durar varios pasos.
+
+Mejora la percepción de valor: un solo spin puede dar 2–4 pagos sucesivos.
+
+2.2. Golden Squares
+
+Cada vez que un símbolo forma parte de un cluster ganador, el cuadrado detrás de ese símbolo queda marcado como Golden Square. 
+Casasdeapuestas.com
+
+Esos cuadrados se quedan latentes y son la base del sistema de premios instantáneos.
+
+2.3. Rainbow Feature (lluvia de premios instantáneos)
+
+Tras terminar todas las cascadas de un spin, si aparece un símbolo Rainbow:
+
+El Rainbow activa todas las Golden Squares del tablero.
+
+Cada Golden Square revela:
+
+Monedas de distintos niveles:
+
+Bronze: ~0,2x – 4x
+
+Silver: ~5x – 20x
+
+Gold: ~25x – 500x
+
+O símbolos especiales:
+
+Four-leaf Clover: multiplica monedas adyacentes (2x, 3x, 4x, 5x o 10x).
+
+Pot of Gold: colector, suma todos los valores de monedas y otros Pots y vuelve a reactivar Golden Squares.
+
+Conclusión: el juego gira en torno a “marcar” el tablero con Golden Squares y luego rezar al Rainbow. El Rainbow es el gatillo de adrenalina.
+
+3. Bonus games: el core del “fantasy” de Le Bandit
+
+Tienes tres niveles de bonus progresivos, todos basados en Free Spins + persistencia de Golden Squares.
+
+3.1. Luck of the Bandit (nivel 1)
+
+Trigger: 3 símbolos FS Scatter → 8 free spins. 
+Hideous Slots
++1
+
+Clave mecánica:
+
+Cualquier Golden Square que generes se mantiene entre tiradas hasta que lo active un Rainbow.
+
+Puedes conseguir FS adicionales si caen 2 o 3 scatters durante el bonus (+2 / +4 spins). 
+Hideous Slots
++1
+
+Lectura de diseño:
+
+Empieza a notarse la “acumulación estratégica”: el jugador siente que construye el tablero.
+
+Potencial medio: combos interesantes si enlazas varios Rainbows dentro de 8–12 spins.
+
+3.2. All That Glitters Is Gold (nivel 2)
+
+Trigger directo: 4 Scatters desde juego base → entras aquí directamente.
+
+O upgrade: en Luck of the Bandit, si consigues 4 scatters, se promociona la ronda a All That Glitters. 
+Hideous Slots
++1
+
+Características:
+
+12 free spins de base. 
+slotsonlinecanada.com
++1
+
+Las Golden Squares son completamente persistentes, incluso tras ser activadas. Siguen activas toda la ronda.
+
+Impacto:
+
+La curva de valor se dispara: cada Rainbow multiplica el esfuerzo acumulado, no lo consume.
+
+Es la ronda típica donde el espectador dice “vale, aquí puede pasar algo gordo”.
+
+3.3. Treasure at the End of the Rainbow (nivel 3, “holy grail”)
+
+Trigger: 5 Scatters en juego base. No se puede comprar. 
+Hacksaw Gaming
++1
+
+Setup:
+
+12 Free Spins.
+
+Todas las Golden Squares permanecen encendidas toda la ronda.
+
+Garantía de Rainbow en cada spin.
+
+No salen monedas Bronze; solo Silver/Gold y símbolos premium. 
+Hacksaw Gaming
++1
+
+Traducción a lenguaje de vídeo:
+
+Es el modo “max hype al 100 %”.
+
+Cada tirada es: marcar tablero, activar todo, repetir.
+
+Matemáticamente es donde vive el camino realista a los multiplicadores grandes (500x–1000x+) y el puente hacia el 10 000x.
+
+4. Modelo matemático y comportamiento del bankroll
+4.1. Parámetros matemáticos
+
+RTP teórico: 96,34 % a largo plazo. 
+Slotjava.com
++1
+
+Volatilidad media: golpes medianos relativamente frecuentes, con colas gordas cuando se encadenan multiplicadores en bonus. 
+NightRush
++1
+
+Hit frequency: ~1 de cada 3 spins paga algo. 
+GamesHub
+
+Discurso para cámara:
+
+“El juego te paga algo con cierta frecuencia, pero el valor gordo está en las Golden Squares + Rainbows + Bonus. El base game mantiene la cuenta respirando, pero el equity real está en el ladder de bonus.”
+
+4.2. Distribución intuitiva de resultados
+
+Si nos vamos a ranges (orientativos, no exactos):
+
+Pequeños premios (0,1x–5x): aparecen constantemente, sostienen la sesión.
+
+Premios medios (5x–50x): suelen venir de Super Cascades bien encadenadas + alguna moneda decente.
+
+Premios grandes (50x–300x): casi siempre relacionados con bonus Luck of the Bandit / All That Glitters con alguna combinación de Clover + Pots. 
+SlotBonusGame
++1
+
+Premios muy grandes (300x–1000x+): normalmente requieren bonus nivel 2/3 con varios Rainbows buenos.
+
+10 000x: puramente outlier de RNG, no algo que se pueda “forzar”.
+
+5. Cómo presentar la gráfica de progreso de premios según tiradas
+
+No tenemos los datos internos de Hacksaw (obviamente), pero para YouTube lo que necesitas es una gráfica didáctica, no forense. Te estructuro cómo montarla para que parezca salida de analítica de producto:
+
+5.1. Qué tipo de gráfica usar
+
+Yo usaría línea de “balance acumulado”:
+
+Eje X: número de tiradas (por ejemplo, 0 a 500 spins).
+
+Eje Y: balance acumulado en múltiplos de apuesta (por ejemplo de -300x a +500x).
+
+Y sobre esa gráfica, tres runs simuladas conceptuales:
+
+Sesión fría (linea roja):
+
+Ligeramente bajista todo el rato, con mini picos de +10x / +20x pero sin bonus fuerte.
+
+Visualiza la realidad de la varianza negativa.
+
+Sesión neutra (línea gris/azul):
+
+Baja al principio, remonta con algún bonus de 80x–120x y termina cerca de -50x / +50x tras 500 spins.
+
+Transmite el efecto del RTP medio.
+
+Sesión caliente (línea verde):
+
+Empieza similar a las otras, pero entre los spins 200–350 conectas:
+
+Un Luck of the Bandit decente (100x–150x).
+
+Un All That Glitters o Treasure al final, que te pega un salto vertical de +400x o +600x.
+
+Narrativa que puedes usar:
+
+“Las tres sesiones tienen el mismo RTP teórico de fondo, pero en la práctica, todo depende de si pillas esos bonus altos. La línea verde es lo que la gente sube a Twitter, las otras dos son lo que le pasa a la mayoría.”
+
+5.2. Eventos que deberías marcar en la gráfica
+
+Pon iconos o anotaciones en la línea:
+
+Marcador 1: “Primer bonus: Luck of the Bandit (80x)”
+
+Marcador 2: “Upgrade a All That Glitters (200x)”
+
+Marcador 3: “Treasure at the End of the Rainbow (600x)”
+
+De ese modo explicas visualmente:
+
+Cómo los bonus no solo enderezan la sesión, sino que cambian la pendiente de la curva.
+
+Por qué la gente siente que “el juego siempre puede recuperar”.
+
+5.3. Cómo justificar que la gráfica es “para producción”
+
+Si quieres vestirlo como análisis serio, mete bullets como:
+
+“Simulación conceptual basada en un slot de RTP 96,34 %, volatilidad media y hit rate 32,47 %.” 
+GamesHub
+
+“Las curvas representan sesiones posibles, no garantizadas. En slots, la dispersión real sobre el RTP teórico es brutal a corto plazo.”
+
+Eso te blinda frente a la típica acusación de “eso está manipulado”.
+
+6. Qué copiar en tu juego (a nivel diseño)
+
+Para tu propio juego estilo Le Bandit / Shuffle:
+
+Core loop claro:
+
+Spin → Clusters → Marcar casillas → Evento que las cobra (Rainbows / equivalente).
+
+Progresión de bonus escalonada:
+
+Bonus 1: sticky squares.
+
+Bonus 2: persistentes incluso tras cobrar.
+
+Bonus 3: persistentes + evento garantizado por tirada + premios mínimos más altos.
+
+Iconografía de recompensas:
+
+3 niveles de moneda + 1 multiplicador + 1 colector.
+
+Es muy fácil de explicar visualmente en vídeo.
+
+Psicología:
+
+“Estás construyendo algo en el tablero” incluso cuando no cobras inmediatamente. Eso engancha.
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prototype Slot - Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1b263b 0, #050811 60%);
+      color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      padding: 24px;
+    }
+
+    .card {
+      background: rgba(10, 16, 30, 0.95);
+      border-radius: 18px;
+      padding: 20px 24px 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(120, 180, 255, 0.25);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      gap: 16px;
+    }
+
+    .title-block h1 {
+      font-size: 24px;
+      letter-spacing: 0.03em;
+    }
+
+    .title-block p {
+      font-size: 12px;
+      color: #9fb3c8;
+      margin-top: 4px;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .metric {
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(15, 42, 87, 0.9);
+      border: 1px solid rgba(90, 160, 255, 0.4);
+      font-size: 11px;
+      text-align: right;
+      min-width: 120px;
+    }
+
+    .metric-label {
+      color: #9fb3c8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-weight: 600;
+      margin-top: 2px;
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    /* Slot grid */
+
+    .slot-shell {
+      background: radial-gradient(circle at top, #283955 0, #0b1020 55%);
+      border-radius: 20px;
+      padding: 14px 16px 18px;
+      border: 1px solid rgba(120, 180, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slot-shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(
+        from 120deg,
+        transparent,
+        rgba(0, 255, 200, 0.2),
+        transparent,
+        rgba(120, 180, 255, 0.28),
+        transparent
+      );
+      opacity: 0.3;
+      filter: blur(28px);
+      z-index: -1;
+    }
+
+    .slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .slot-header span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #b3c8ff;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(5, 64px);
+      gap: 6px;
+      padding: 8px;
+      background: radial-gradient(circle at center, #151b30 0, #050811 70%);
+      border-radius: 16px;
+      border: 1px solid rgba(70, 110, 170, 0.7);
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.7);
+    }
+
+    .cell {
+      border-radius: 12px;
+      background: radial-gradient(circle at top, #223045 0, #080c15 55%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 26px;
+      position: relative;
+      transition: transform 0.16s ease-out, box-shadow 0.16s ease-out, background 0.18s ease-out;
+      border: 1px solid rgba(70, 110, 170, 0.7);
+    }
+
+    .cell.win {
+      transform: scale(1.06);
+      background: radial-gradient(circle at center, #1d794a 0, #0b2318 60%);
+      box-shadow: 0 0 16px rgba(72, 255, 170, 0.75);
+      border-color: rgba(72, 255, 170, 0.8);
+    }
+
+    .cell span {
+      pointer-events: none;
+    }
+
+    /* Controls */
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #9fb3c8;
+    }
+
+    .field input {
+      margin-top: 4px;
+      background: #050a14;
+      border-radius: 999px;
+      border: 1px solid rgba(120, 180, 255, 0.55);
+      padding: 6px 10px;
+      color: #f7f7f7;
+      font-size: 13px;
+      width: 90px;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #ffffff;
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 24px;
+      background: linear-gradient(120deg, #4ade80, #22c55e);
+      color: #04120b;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 30px rgba(22, 163, 74, 0.7);
+      transition: transform 0.04s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out,
+        background 0.2s ease-out;
+      white-space: nowrap;
+    }
+
+    .button:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.7);
+      filter: brightness(0.96);
+    }
+
+    .button.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: linear-gradient(120deg, #6b7280, #4b5563);
+      color: #e5e7eb;
+    }
+
+    .button span.icon {
+      font-size: 16px;
+    }
+
+    /* Sidebar */
+
+    .sidebar {
+      background: radial-gradient(circle at top, #151a30 0, #050811 70%);
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      border: 1px solid rgba(120, 180, 255, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 260px;
+    }
+
+    .sidebar-block-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #94a3b8;
+    }
+
+    .balance-display {
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .countdown {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #a5b4fc;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.55);
+      color: #bbf7d0;
+      margin-top: 4px;
+    }
+
+    .tag span.icon {
+      font-size: 13px;
+    }
+
+    .log {
+      flex: 1;
+      background: rgba(6, 10, 25, 0.9);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 11px;
+      overflow-y: auto;
+      max-height: 220px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    .log-entry {
+      margin-bottom: 6px;
+      color: #cbd5f5;
+    }
+
+    .log-entry span.label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #64748b;
+      font-size: 10px;
+      margin-right: 4px;
+    }
+
+    .log-entry.win {
+      color: #bbf7d0;
+    }
+
+    .log-entry.loss {
+      color: #fecaca;
+    }
+
+    .log-entry.system {
+      color: #a5b4fc;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      font-size: 10px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #cbd5f5;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .slot-grid {
+        grid-template-rows: repeat(5, 52px);
+      }
+      .cell {
+        font-size: 22px;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .metrics {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div class="title-block">
+          <h1>Urban Cluster Slot &mdash; Prototype</h1>
+          <p>Demo matemática simplificada. No es un producto final ni un juego con dinero real.</p>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Saldo inicial</div>
+            <div class="metric-value">20.000 &euro;</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Bono automático</div>
+            <div class="metric-value">+1.500 &euro; cada 15 s</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Grid</div>
+            <div class="metric-value">6 columnas &times; 5 filas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="slot-shell">
+          <div class="slot-header">
+            <span>Cluster slot demo</span>
+            <span id="statusText">Listo.</span>
+          </div>
+          <div class="slot-grid" id="slotGrid"></div>
+
+          <div class="controls">
+            <div class="control-group">
+              <div class="field">
+                <label for="betInput">Apuesta / spin</label>
+                <input id="betInput" type="number" min="1" step="50" value="200" />
+              </div>
+              <div class="pill-row">
+                <div class="pill">Clusters de 4+ pagan</div>
+                <div class="pill">Pago aprox: tamaño &times; apuesta &times; multiplicador</div>
+              </div>
+            </div>
+            <button id="spinButton" class="button">
+              <span class="icon">▶️</span>
+              <span>Spin</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar">
+          <div>
+            <div class="sidebar-block-title">Saldo</div>
+            <div id="balanceDisplay" class="balance-display">20.000 €</div>
+            <div id="countdown" class="countdown">Próximo bono: 15 s</div>
+            <div class="tag">
+              <span class="icon">💸</span>
+              <span>Bono de fidelización simulado +1.500 € / 15 s</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="sidebar-block-title" style="margin-bottom: 6px;">Log de sesión</div>
+            <div id="log" class="log"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // CONFIG
+    // -----------------------------
+    const ROWS = 5;
+    const COLS = 6;
+    const START_BALANCE = 20000;
+    const BONUS_EVERY_MS = 15000;
+    const BONUS_AMOUNT = 1500;
+    const COUNTDOWN_SECONDS = 15;
+
+    // Símbolos propios, nada de copiar iconografía original
+    const SYMBOLS = [
+      { icon: "◆", baseMultiplier: 0.3 },
+      { icon: "✦", baseMultiplier: 0.4 },
+      { icon: "⬢", baseMultiplier: 0.5 },
+      { icon: "⬡", baseMultiplier: 0.6 },
+      { icon: "✪", baseMultiplier: 0.7 },
+      { icon: "⬣", baseMultiplier: 0.9 }
+    ];
+
+    const gridElement = document.getElementById("slotGrid");
+    const balanceDisplay = document.getElementById("balanceDisplay");
+    const statusText = document.getElementById("statusText");
+    const spinButton = document.getElementById("spinButton");
+    const betInput = document.getElementById("betInput");
+    const logElement = document.getElementById("log");
+    const countdownElement = document.getElementById("countdown");
+
+    let balance = START_BALANCE;
+    let grid = [];
+    let countdown = COUNTDOWN_SECONDS;
+
+    // -----------------------------
+    // UTILIDADES
+    // -----------------------------
+
+    function formatCurrency(value) {
+      return value.toLocaleString("es-ES", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      });
+    }
+
+    function log(message, type = "system") {
+      const entry = document.createElement("div");
+      entry.classList.add("log-entry", type);
+      const label = document.createElement("span");
+      label.classList.add("label");
+      label.textContent =
+        type === "win" ? "WIN" : type === "loss" ? "SPIN" : "SYS";
+      const text = document.createElement("span");
+      text.textContent = message;
+      entry.appendChild(label);
+      entry.appendChild(text);
+      logElement.prepend(entry);
+    }
+
+    function setStatus(message) {
+      statusText.textContent = message;
+    }
+
+    function updateBalanceDisplay() {
+      balanceDisplay.textContent = formatCurrency(balance);
+    }
+
+    function setSpinEnabled(enabled) {
+      if (enabled) {
+        spinButton.classList.remove("disabled");
+        spinButton.disabled = false;
+      } else {
+        spinButton.classList.add("disabled");
+        spinButton.disabled = true;
+      }
+    }
+
+    // -----------------------------
+    // GRID
+    // -----------------------------
+
+    function createEmptyGrid() {
+      grid = [];
+      gridElement.innerHTML = "";
+      for (let r = 0; r < ROWS; r++) {
+        const row = [];
+        for (let c = 0; c < COLS; c++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          const span = document.createElement("span");
+          cell.appendChild(span);
+          gridElement.appendChild(cell);
+          row.push({
+            symbolIndex: 0,
+            element: cell
+          });
+        }
+        grid.push(row);
+      }
+    }
+
+    function randomSymbolIndex() {
+      return Math.floor(Math.random() * SYMBOLS.length);
+    }
+
+    function fillGridRandom() {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const symbolIndex = randomSymbolIndex();
+          grid[r][c].symbolIndex = symbolIndex;
+          grid[r][c].element.classList.remove("win");
+          grid[r][c].element.firstChild.textContent = SYMBOLS[symbolIndex].icon;
+        }
+      }
+    }
+
+    // -----------------------------
+    // CLUSTERS Y PAGO
+    // -----------------------------
+
+    function findClusters() {
+      const visited = Array.from({ length: ROWS }, () =>
+        Array(COLS).fill(false)
+      );
+      const clusters = [];
+      const directions = [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1]
+      ];
+
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (visited[r][c]) continue;
+          const symbolIndex = grid[r][c].symbolIndex;
+          const stack = [[r, c]];
+          const cells = [];
+
+          while (stack.length) {
+            const [rr, cc] = stack.pop();
+            if (
+              rr < 0 ||
+              rr >= ROWS ||
+              cc < 0 ||
+              cc >= COLS ||
+              visited[rr][cc]
+            ) {
+              continue;
+            }
+            if (grid[rr][cc].symbolIndex !== symbolIndex) continue;
+
+            visited[rr][cc] = true;
+            cells.push([rr, cc]);
+
+            for (const [dr, dc] of directions) {
+              stack.push([rr + dr, cc + dc]);
+            }
+          }
+
+          if (cells.length >= 4) {
+            clusters.push({
+              symbolIndex,
+              cells
+            });
+          }
+        }
+      }
+
+      return clusters;
+    }
+
+    function computePayout(clusters, bet) {
+      let total = 0;
+      for (const cluster of clusters) {
+        const symbol = SYMBOLS[cluster.symbolIndex];
+        // Pseudomatemática simple:
+        // tamaño cluster * apuesta * (baseMultiplier + pequeño random)
+        const size = cluster.cells.length;
+        const randBoost = 0.2 + Math.random() * 0.8;
+        const multiplier = symbol.baseMultiplier + randBoost;
+        const win = Math.round(size * bet * multiplier);
+        total += win;
+      }
+      return total;
+    }
+
+    function highlightClusters(clusters) {
+      for (const cluster of clusters) {
+        for (const [r, c] of cluster.cells) {
+          grid[r][c].element.classList.add("win");
+        }
+      }
+    }
+
+    // -----------------------------
+    // SPIN
+    // -----------------------------
+
+    async function handleSpin() {
+      const bet = Number(betInput.value) || 0;
+
+      if (bet <= 0) {
+        setStatus("Configura una apuesta válida.");
+        log("Apuesta inválida.", "system");
+        return;
+      }
+
+      if (bet > balance) {
+        setStatus("Saldo insuficiente para esa apuesta.");
+        log("Intento de apuesta sin saldo suficiente.", "system");
+        return;
+      }
+
+      setSpinEnabled(false);
+      setStatus("Girando...");
+      log(`Apuesta de ${formatCurrency(bet)}.`, "loss");
+
+      // Cobrar apuesta
+      balance -= bet;
+      updateBalanceDisplay();
+
+      // Animación rápida antes de fijar símbolos
+      for (let i = 0; i < 6; i++) {
+        fillGridRandom();
+        await new Promise((resolve) => setTimeout(resolve, 70));
+      }
+
+      // Grid final y cálculo
+      fillGridRandom();
+      const clusters = findClusters();
+      const payout = computePayout(clusters, bet);
+
+      if (clusters.length > 0) {
+        highlightClusters(clusters);
+      }
+
+      if (payout > 0) {
+        balance += payout;
+        updateBalanceDisplay();
+        setStatus(
+          `Premio: ${formatCurrency(payout)} (clusters: ${clusters.length}).`
+        );
+        log(
+          `Premio de ${formatCurrency(
+            payout
+          )} en ${clusters.length} cluster(s).`,
+          "win"
+        );
+      } else {
+        setStatus("Sin premio en este spin.");
+      }
+
+      setSpinEnabled(true);
+    }
+
+    // -----------------------------
+    // BONO AUTOMÁTICO
+    // -----------------------------
+
+    function startBonusTimer() {
+      setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+          countdown = COUNTDOWN_SECONDS;
+          balance += BONUS_AMOUNT;
+          updateBalanceDisplay();
+          countdownElement.textContent = `Próximo bono: ${countdown} s`;
+          log(
+            `Bono automático acreditado: ${formatCurrency(BONUS_AMOUNT)}.`,
+            "system"
+          );
+        } else {
+          countdownElement.textContent = `Próximo bono: ${countdown} s`;
+        }
+      }, 1000);
+    }
+
+    // -----------------------------
+    // INIT
+    // -----------------------------
+
+    function init() {
+      createEmptyGrid();
+      fillGridRandom();
+      updateBalanceDisplay();
+      setSpinEnabled(true);
+      setStatus("Listo. Configura apuesta y pulsa SPIN.");
+      log("Sesión iniciada. Prototipo en ejecución.", "system");
+      startBonusTimer();
+    }
+
+    spinButton.addEventListener("click", () => {
+      if (spinButton.disabled) return;
+      handleSpin();
+    });
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>High Card Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #050816 0, #020308 60%);
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .card-shell {
+      background: radial-gradient(circle at top, #141627 0, #050712 70%);
+      border-radius: 24px;
+      padding: 20px 22px 22px;
+      border: 1px solid rgba(129, 140, 248, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      margin-bottom: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .balance {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #818cf8;
+      display: flex;
+      align-items: center;
+    }
+
+    .balance-icon {
+      margin-right: 8px;
+    }
+
+    .bet-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1e293b;
+      padding: 8px 12px;
+      border-radius: 12px;
+    }
+
+    .bet-input {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #f9fafb;
+      padding: 6px 10px;
+      border-radius: 8px;
+      width: 80px;
+      text-align: right;
+      font-weight: 500;
+    }
+
+    .bet-input:focus {
+      outline: none;
+      border-color: #a78bfa;
+    }
+
+    .bet-btn {
+      background: #374151;
+      color: #f9fafb;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-weight: 500;
+    }
+
+    .bet-btn:hover:not(:disabled) {
+      background-color: #4b5563;
+    }
+
+    .bet-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .current-card {
+      font-size: 4rem;
+      padding: 20px 30px;
+      border-radius: 12px;
+      background: #f9fafb;
+      color: #1f2937;
+      min-width: 120px;
+      text-align: center;
+      border: 5px solid #a78bfa;
+      box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
+      transition: transform 0.3s ease-out;
+    }
+
+    .current-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-placeholder {
+      background: #374151;
+      color: #9ca3af;
+      font-size: 2rem;
+      padding: 20px 30px;
+      border-radius: 12px;
+      min-width: 120px;
+      text-align: center;
+      border: 5px dashed #4b5563;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bet-action-area {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+    }
+
+    .bet-action-btn {
+      flex: 1;
+      padding: 15px 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .bet-action-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: scale(1);
+    }
+
+    .mult {
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    #btn-higher {
+      background: #10b981;
+      color: #064e3b;
+      box-shadow: 0 4px #047857;
+    }
+
+    #btn-higher:hover:not(:disabled) {
+      background: #059669;
+      box-shadow: 0 4px #065f46;
+      transform: translateY(1px);
+    }
+
+    #btn-lower {
+      background: #ef4444;
+      color: #7f1d1d;
+      box-shadow: 0 4px #b91c1c;
+    }
+
+    #btn-lower:hover:not(:disabled) {
+      background: #dc2626;
+      box-shadow: 0 4px #991b1b;
+      transform: translateY(1px);
+    }
+
+    .controls {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+    }
+
+    .control-btn {
+      flex: 1;
+      padding: 10px 15px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #btn-new-round {
+      background: #6366f1;
+      color: #ffffff;
+      box-shadow: 0 4px #4f46e5;
+    }
+
+    #btn-new-round:hover:not(:disabled) {
+      background: #4f46e5;
+      box-shadow: 0 4px #4338ca;
+      transform: translateY(1px);
+    }
+
+    #btn-cashout { /* Cambiado a cashout */
+      background: #f59e0b;
+      color: #92400e;
+      box-shadow: 0 4px #d97706;
+      display: none; /* Inicialmente oculto */
+    }
+
+    #btn-cashout:hover:not(:disabled) {
+      background: #d97706;
+      box-shadow: 0 4px #b45309;
+      transform: translateY(1px);
+    }
+
+    .status-message {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 1.1rem;
+      min-height: 25px;
+      font-weight: 600;
+    }
+
+    .result-message {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      min-height: 20px;
+    }
+
+    .log-container {
+      margin-top: 30px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid #334155;
+    }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px dashed #334155;
+      font-size: 0.85rem;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-win {
+      color: #4ade80;
+    }
+
+    .log-loss {
+      color: #f87171;
+    }
+
+    .log-info {
+      color: #94a3b8;
+    }
+
+    .range-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #1e293b;
+        border-radius: 12px;
+    }
+
+    .range-label {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        color: #94a3b8;
+    }
+
+    .range-slider {
+        width: 100%;
+        -webkit-appearance: none;
+        height: 8px;
+        background: #475569;
+        outline: none;
+        opacity: 0.9;
+        transition: opacity 0.2s;
+        border-radius: 4px;
+    }
+
+    .range-slider:hover {
+        opacity: 1;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #818cf8;
+        cursor: pointer;
+        border-radius: 50%;
+        border: 3px solid #f9fafb;
+        box-shadow: 0 0 5px rgba(129, 140, 248, 0.8);
+    }
+
+    .range-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #818cf8;
+        cursor: pointer;
+        border-radius: 50%;
+        border: 3px solid #f9fafb;
+        box-shadow: 0 0 5px rgba(129, 140, 248, 0.8);
+    }
+
+    .range-value {
+        margin-top: 10px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #f9fafb;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card-shell">
+      <div class="header">
+        <div id="balance" class="balance">
+          <span class="balance-icon">💰</span> 
+          <span>100.00</span>
+        </div>
+        <div class="bet-controls">
+          <input type="number" id="bet-input" class="bet-input" value="10" min="1" />
+          <button id="btn-bet-max" class="bet-btn">MAX</button>
+          <button id="btn-bet-half" class="bet-btn">1/2</button>
+          <button id="btn-bet-double" class="bet-btn">2x</button>
+        </div>
+      </div>
+      
+      <div class="game-area">
+        <div id="current-card" class="current-card card-placeholder">
+          ?
+        </div>
+
+        <div class="range-container">
+            <div class="range-label">Punto de Inflexión (Cualquier carta por encima de este valor paga menos)</div>
+            <input type="range" id="multiplier-range" class="range-slider" min="2" max="13" value="7.5" step="0.5">
+            <div id="range-value" class="range-value">7.5</div>
+        </div>
+
+        <div class="bet-action-area">
+          <button id="btn-higher" class="bet-action-btn" disabled>
+            Mayor/Igual
+            <span id="mult-higher" class="mult">1.95x</span>
+          </button>
+          <button id="btn-lower" class="bet-action-btn" disabled>
+            Menor/Igual
+            <span id="mult-lower" class="mult">1.95x</span>
+          </button>
+        </div>
+
+        <div class="controls">
+          <button id="btn-new-round" class="control-btn" disabled>Nueva Ronda</button>
+          <button id="btn-cashout" class="control-btn">Cashout</button> <!-- Texto del botón cambiado -->
+        </div>
+
+        <div id="status-message" class="status-message">
+          Establece tu apuesta y haz clic en Nueva Ronda.
+        </div>
+        <div id="last-result" class="result-message"></div>
+      </div>
+    </div>
+    
+    <div id="log-container" class="log-container">
+      <!-- El historial de juego se insertará aquí -->
+    </div>
+  </div>
+
+  <script type="module">
+    // Constantes
+    const CARD_VALUES = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"];
+    const VALUE_MAP = {
+      "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9,
+      "T": 10, "J": 11, "Q": 12, "K": 13, "A": 14
+    };
+    const START_BALANCE = 1000;
+    const HOUSE_EDGE = 0.025; // 2.5%
+
+    // Elementos del DOM
+    const balanceEl = document.getElementById("balance");
+    const betInput = document.getElementById("bet-input");
+    const currentCardEl = document.getElementById("current-card");
+    const statusMessageEl = document.getElementById("status-message");
+    const lastResultEl = document.getElementById("last-result");
+    const logContainer = document.getElementById("log-container");
+
+    const btnNewRound = document.getElementById("btn-new-round");
+    const btnHigher = document.getElementById("btn-higher");
+    const btnLower = document.getElementById("btn-lower");
+    const btnCashout = document.getElementById("btn-cashout"); // Referencia al nuevo botón
+    const btnMax = document.getElementById("btn-bet-max");
+    const btnHalf = document.getElementById("btn-bet-half");
+    const btnDouble = document.getElementById("btn-bet-double");
+
+    const multHigherEl = document.getElementById("mult-higher");
+    const multLowerEl = document.getElementById("mult-lower");
+
+    const rangeSlider = document.getElementById("multiplier-range");
+    const rangeValueEl = document.getElementById("range-value");
+
+    // Estado del juego
+    let balance = START_BALANCE;
+    let currentCardValue = null;
+    let currentCardDisplay = null;
+    let currentBet = 0;
+    let roundActive = false;
+    let multiplierThreshold = parseFloat(rangeSlider.value);
+
+    // --------------------------
+    // UTILIDADES
+    // --------------------------
+
+    /**
+     * Formatea un número como moneda (ej: 123.45 -> $123.45)
+     * @param {number} amount
+     * @returns {string}
+     */
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount).replace('$', '').replace('€', ''); // Se elimina el símbolo para simplicidad visual
+    }
+
+    /**
+     * Devuelve el valor numérico de una carta.
+     * @param {string} card
+     * @returns {number}
+     */
+    function getNumericValue(card) {
+      return VALUE_MAP[card];
+    }
+
+    /**
+     * Registra un evento en el historial de juego.
+     * @param {string} message
+     * @param {'win' | 'loss' | 'info'} type
+     */
+    function log(message, type = "info") {
+      const entry = document.createElement("div");
+      entry.classList.add("log-entry", `log-${type}`);
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContainer.prepend(entry);
+      // Limitar el número de entradas para no sobrecargar el DOM
+      if (logContainer.children.length > 50) {
+        logContainer.lastChild.remove();
+      }
+    }
+
+    // --------------------------
+    // LÓGICA DE JUEGO
+    // --------------------------
+
+    /**
+     * Actualiza el saldo y la interfaz.
+     */
+    function updateBalance(amount) {
+      balance += amount;
+      balanceEl.lastElementChild.textContent = formatCurrency(balance);
+    }
+
+    /**
+     * Calcula el multiplicador para una dirección específica (higher o lower).
+     * @param {string} direction - 'higher' o 'lower'.
+     * @param {number} threshold - El valor numérico de la carta de referencia.
+     * @returns {number}
+     */
+    function calculateMultiplier(threshold, direction) {
+      // El total de posibles resultados es 13 (de 2 a A, ignorando palos)
+      const totalOutcomes = 13; 
+      
+      // La probabilidad se calcula sobre el rango de valores (2 a 14)
+      
+      let winningOutcomes;
+
+      if (direction === 'higher') {
+          // Mayor/Igual (>=) al umbral, pero siempre 14 (A) es el máximo.
+          // Ej: Si el umbral es 7.5, ganan 8, 9, 10, 11, 12, 13, 14 (7 cartas)
+          // Cartas ganadoras = 14 - Math.floor(threshold)
+          winningOutcomes = 14 - Math.floor(threshold);
+      } else { // 'lower'
+          // Menor/Igual (<=) al umbral, pero siempre 2 es el mínimo.
+          // Ej: Si el umbral es 7.5, ganan 2, 3, 4, 5, 6, 7 (6 cartas)
+          // Cartas ganadoras = Math.floor(threshold) - 1 (2 es la carta más baja)
+          winningOutcomes = Math.floor(threshold) - 1;
+      }
+
+      // La probabilidad de ganar (P) es: winningOutcomes / 13
+      // El multiplicador 'justo' (M_fair) es: 1 / P = 13 / winningOutcomes
+      // El multiplicador real (M_real) aplica el margen de la casa: M_real = M_fair * (1 - House Edge)
+      
+      if (winningOutcomes <= 0) return 0; // Evitar división por cero
+
+      const fairMultiplier = 13 / winningOutcomes;
+      const realMultiplier = fairMultiplier * (1 - HOUSE_EDGE);
+      
+      // El multiplicador debe ser al menos 1.0
+      return Math.max(1.0, realMultiplier);
+    }
+
+    /**
+     * Actualiza los multiplicadores mostrados en los botones.
+     */
+    function updateMults() {
+      const threshold = parseFloat(rangeSlider.value);
+      rangeValueEl.textContent = threshold;
+      multiplierThreshold = threshold;
+      
+      // Calculate Higher/Equal Multiplier (X >= threshold)
+      const multHigher = calculateMultiplier(threshold, 'higher');
+      multHigherEl.textContent = `${multHigher.toFixed(2)}x`;
+      
+      // Calculate Lower/Equal Multiplier (X <= threshold)
+      // Usamos (15 - threshold) para reflejar la inversión del rango
+      const multLower = calculateMultiplier(threshold, 'lower');
+      multLowerEl.textContent = `${multLower.toFixed(2)}x`; // ¡Aseguramos que se muestre el multiplicador menor/igual!
+
+      // Actualizar el estado del botón New Round
+      btnNewRound.disabled = currentBet <= 0 || roundActive || balance < currentBet;
+    }
+
+    /**
+     * Inicia una nueva ronda.
+     */
+    function newRound() {
+      if (currentBet <= 0 || balance < currentBet) {
+        setStatus("Error: Asegúrate de que tu apuesta sea válida.");
+        return;
+      }
+
+      if (roundActive) {
+        setStatus("Error: Una ronda ya está en curso.");
+        return;
+      }
+
+      // Restar apuesta del saldo
+      updateBalance(-currentBet);
+
+      // Deshabilitar controles de apuesta
+      setBetControlsEnabled(false);
+      btnNewRound.disabled = true;
+
+      // Obtener y mostrar carta actual (la carta sobre la que se apostará)
+      currentCardValue = CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
+      currentCardDisplay = currentCardValue;
+      currentCardEl.textContent = currentCardDisplay;
+      currentCardEl.classList.remove('card-placeholder');
+      
+      setStatus(`Ronda iniciada. Carta actual: ${currentCardDisplay}. Elige "Mayor/Igual" o "Menor/Igual".`);
+      lastResultEl.textContent = "";
+
+      // Habilitar botones de apuesta High/Low
+      btnHigher.disabled = false;
+      btnLower.disabled = false;
+      rangeSlider.disabled = true; // Bloquear el rango
+      
+      roundActive = true;
+      btnCashout.style.display = 'none';
+      log(`Apuesta de ${formatCurrency(currentBet)} colocada. Carta de referencia: ${currentCardDisplay}.`, 'info');
+    }
+    
+    /**
+     * Resuelve la apuesta High/Low
+     * @param {'higher' | 'lower'} direction - La elección del usuario.
+     */
+    function resolveBet(direction) {
+      if (!roundActive) return;
+      
+      // Deshabilitar botones de High/Low
+      btnHigher.disabled = true;
+      btnLower.disabled = true;
+      roundActive = false; // La apuesta está resuelta
+      
+      setStatus("Resolviendo apuesta...");
+      
+      // Obtener la siguiente carta
+      const nextCardValue = CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
+      const nextCardDisplay = nextCardValue;
+
+      // Animación de volteo (simulada)
+      currentCardEl.textContent = "?";
+      currentCardEl.classList.add('flipped');
+
+      // Esperar un poco para la animación
+      setTimeout(() => {
+        currentCardEl.textContent = nextCardDisplay;
+        currentCardEl.classList.remove('flipped');
+
+        // Valores numéricos
+        const nextCardNumericValue = getNumericValue(nextCardValue);
+        
+        // El umbral se usa para determinar si se gana o se pierde, no la carta de referencia.
+        const threshold = multiplierThreshold;
+        
+        // Determinar el multiplicador elegido
+        const chosenMult = direction === 'higher' 
+            ? calculateMultiplier(threshold, 'higher') 
+            : calculateMultiplier(threshold, 'lower');
+
+        // Lógica de Ganar/Perder
+        let win = false;
+        
+        if (direction === 'higher') {
+          // Gana si la siguiente carta es MAYOR O IGUAL al umbral
+          if (nextCardNumericValue >= threshold) {
+            win = true;
+          }
+        } else { // 'lower'
+          // Gana si la siguiente carta es MENOR O IGUAL al umbral
+          if (nextCardNumericValue <= threshold) {
+            win = true;
+          }
+        }
+
+        // Pago
+        if (win) {
+          const profit = currentBet * chosenMult;
+          updateBalance(profit); // Paga (apuesta + ganancia neta)
+          
+          setStatus(`¡Ganas! Carta Siguiente: ${nextCardDisplay}.`);
+          lastResultEl.textContent =
+            "Ganancia: +" +
+            formatCurrency(profit) +
+            " (" +
+            chosenMult.toFixed(2) +
+            "x).";
+          log(
+            `Apuesta ${formatCurrency(
+              currentBet
+            )}, ${direction === "higher" ? "mayor/igual" : "menor/igual"}, premio ${formatCurrency(
+              profit
+            )}.`,
+            "win"
+          );
+        } else {
+          setStatus(`Fallo. Carta Siguiente: ${nextCardDisplay}. Pierdes la apuesta.`);
+          lastResultEl.textContent =
+            "Fallo: -" + formatCurrency(currentBet) + " en esta ronda.";
+          log(
+            `Apuesta ${formatCurrency(
+              currentBet
+            )}, ${direction === "higher" ? "mayor/igual" : "menor/igual"}, sin premio.`,
+            "loss"
+          );
+        }
+
+        // Restablecer controles
+        setBetControlsEnabled(true);
+        btnNewRound.disabled = false;
+        rangeSlider.disabled = false; // Desbloquear el rango
+
+      }, 260);
+    }
+
+    /**
+     * Habilita o deshabilita los controles de la apuesta.
+     * @param {boolean} enabled
+     */
+    function setBetControlsEnabled(enabled) {
+      betInput.disabled = !enabled;
+      btnMax.disabled = !enabled;
+      btnHalf.disabled = !enabled;
+      btnDouble.disabled = !enabled;
+    }
+
+    /**
+     * Establece el mensaje de estado.
+     * @param {string} message
+     */
+    function setStatus(message) {
+        statusMessageEl.textContent = message;
+    }
+
+    // --------------------------
+    // EVENTOS DE CONTROL DE APUESTA
+    // --------------------------
+
+    function updateCurrentBet(newBet) {
+      currentBet = Math.max(1, Math.min(newBet, balance));
+      betInput.value = currentBet.toFixed(2);
+      updateMults(); // Llama para actualizar el estado del botón de nueva ronda
+    }
+
+    betInput.addEventListener("input", (e) => {
+      const value = parseFloat(e.target.value);
+      if (!isNaN(value)) {
+        updateCurrentBet(value);
+      }
+    });
+
+    btnMax.addEventListener("click", () => {
+      updateCurrentBet(balance);
+    });
+
+    btnHalf.addEventListener("click", () => {
+      updateCurrentBet(Math.max(1, balance / 2));
+    });
+
+    btnDouble.addEventListener("click", () => {
+      updateCurrentBet(currentBet * 2);
+    });
+    
+    // --------------------------
+    // EVENTOS DE JUEGO
+    // --------------------------
+    
+    btnNewRound.addEventListener("click", () => {
+      newRound();
+    });
+
+    btnHigher.addEventListener("click", () => {
+      if (btnHigher.disabled) return;
+      resolveBet("higher");
+    });
+
+    btnLower.addEventListener("click", () => {
+      if (btnLower.disabled) return;
+      resolveBet("lower");
+    });
+
+    // Evento del slider
+    rangeSlider.addEventListener('input', updateMults);
+    rangeSlider.addEventListener('change', updateMults);
+    
+    // --------------------------
+    // INIT
+    // --------------------------
+    function init() {
+      balance = START_BALANCE;
+      updateBalance(0); // Mostrar saldo inicial
+      updateCurrentBet(parseFloat(betInput.value)); // Inicializar la apuesta
+      updateMults(); // Calcular y mostrar multiplicadores iniciales
+      log("Juego High Card iniciado. ¡Buena suerte!", "info");
+      
+      // Asegurarse de que el botón New Round esté inicialmente habilitado si la apuesta es válida
+      btnNewRound.disabled = currentBet <= 0 || balance < currentBet;
+      btnCashout.style.display = 'none'; // Asegurar que Cashout esté oculto al inicio
+
+      // Deshabilitar botones de apuesta High/Low al inicio
+      btnHigher.disabled = true;
+      btnLower.disabled = true;
+      rangeSlider.disabled = false;
+    }
+
+    // El botón de Cashout no tiene lógica implementada en este juego High-Low simple,
+    // ya que la apuesta se resuelve en una sola acción. Lo dejamos como un placeholder
+    // funcionalmente inactivo pero con el texto correcto.
+    btnCashout.addEventListener("click", () => {
+        setStatus("El botón 'Cashout' no aplica en este juego de ronda simple.");
+    });
+
+
+    init();
+
+  </script>
+</body>
+</html>

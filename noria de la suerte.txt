@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ruleta de la Suerte</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales */
+        :root {
+            --wheel-size: 380px;
+            --indicator-color: #ef4444; /* Rojo fuerte para el indicador */
+            --primary-text-color: #f3f4f6;
+            --accent-color: #eab308; /* Amarillo oscuro/Oro para acentos */
+        }
+
+        body {
+            /* Fondo muy oscuro y profundo */
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            color: var(--primary-text-color);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #111827;
+            border-radius: 0.5rem; /* Menos redondeado para aspecto crudo */
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid #374151;
+        }
+
+        /* Área de la Ruleta */
+        .wheel-area {
+            position: relative;
+            width: var(--wheel-size);
+            height: var(--wheel-size);
+            margin: 2rem auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wheel-svg {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* El centro de la ruleta */
+        .wheel-center {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #27272a;
+            border-radius: 50%;
+            border: 4px solid var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            z-index: 30;
+        }
+
+        /* El Indicador (Flecha) - Posicionado a la DERECHA (3 en punto) */
+        .indicator {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(0%, -50%) rotate(90deg); 
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid var(--indicator-color);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+            z-index: 50;
+            margin-right: -15px; 
+        }
+        
+        /* Animación de giro */
+        .wheel-svg {
+            transform: rotate(0deg);
+            transition: transform 0s; /* Se sobreescribe con JS */
+            border-radius: 50%;
+        }
+
+        /* Estilos de los botones */
+        .btn-spin {
+            /* Estilo más serio/metálico */
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn-spin:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5c626e 0%, #4b5563 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+        }
+
+        .btn-spin:active:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-spin:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border: 2px solid #374151;
+        }
+
+        .bet-input-wrapper input {
+            /* Ocultar flechas en inputs de tipo number */
+            -moz-appearance: textfield;
+            color: var(--accent-color);
+            border: 1px solid #4b5563;
+        }
+        .bet-input-wrapper input::-webkit-outer-spin-button,
+        .bet-input-wrapper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Estilos para el mensaje de resultado */
+        #result-message {
+            font-family: 'Courier New', monospace; /* Fuente más de contador */
+            font-size: 2.5rem;
+            min-height: 4rem; /* Asegurar espacio */
+        }
+        .win-text {
+            color: #10b981; /* Verde esmeralda */
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+        .loss-text {
+            color: #ef4444; /* Rojo fuerte */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-300 border-b border-gray-700 pb-3">
+            THE WHEEL OF FORTUNE
+        </h1>
+
+        <!-- Métrica de Saldo y Apuesta -->
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-gray-900 p-4 rounded-lg mb-6 shadow-xl">
+            <div class="mb-4 sm:mb-0">
+                <p class="text-sm font-semibold uppercase text-gray-500">SALDO DISPONIBLE</p>
+                <div id="balance-display" class="text-3xl font-extrabold text-green-500">1,000 €</div>
+            </div>
+            <div class="flex items-center space-x-3 bet-input-wrapper">
+                <label for="bet-input" class="text-sm font-semibold text-gray-500">APUESTA ($):</label>
+                <input id="bet-input" type="number" min="1" value="10" class="w-24 p-2 text-center text-lg font-bold bg-gray-800 border-2 border-yellow-700 rounded-md focus:ring-yellow-500 focus:border-yellow-500 transition duration-150">
+                <button id="btn-spin" class="btn-spin px-6 py-2 rounded-md font-bold text-lg" disabled>
+                    GIRAR
+                </button>
+            </div>
+        </div>
+
+        <!-- Área del Juego: Ruleta y Botón -->
+        <div class="wheel-area">
+            <div class="indicator"></div>
+            <svg id="wheel-svg" class="wheel-svg" width="380" height="380" viewBox="0 0 380 380">
+                <!-- SVG Sectors centered at 190, 190. 45 degrees per sector. -->
+                <g id="sectors-container" transform="translate(190, 190)">
+                    
+                    <!-- Sector x50 (Verde) - CENTER: 0 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#10b981" transform="rotate(-22.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#064e3b" font-weight="bold" font-size="20" transform="rotate(0)">50x</text>
+
+                    <!-- Sector x25 (Rosa) - CENTER: 45 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#ec4899" transform="rotate(22.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#831843" font-weight="bold" font-size="20" transform="rotate(45)">25x</text>
+
+                    <!-- Sector x10 (Naranja) - CENTER: 90 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#f97316" transform="rotate(67.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#7c2d12" font-weight="bold" font-size="20" transform="rotate(90)">10x</text>
+
+                    <!-- Sector x5 (Amarillo) - CENTER: 135 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#facc15" transform="rotate(112.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#78350f" font-weight="bold" font-size="20" transform="rotate(135)">5x</text>
+                    
+                    <!-- Sector x3 (Morado) - CENTER: 180 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#8b5cf6" transform="rotate(157.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#4c1d95" font-weight="bold" font-size="20" transform="rotate(180)">3x</text>
+
+                    <!-- Sector x2 (Azul) - CENTER: 225 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#3b82f6" transform="rotate(202.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#1e40af" font-weight="bold" font-size="20" transform="rotate(225)">2x</text>
+                    
+                    <!-- Sector x1.5 (Gris) - CENTER: 270 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#9ca3af" transform="rotate(247.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#1f2937" font-weight="bold" font-size="20" transform="rotate(270)">1.5x</text>
+
+                    <!-- Sector 0x (Rojo - Pérdida) - CENTER: 315 degrees. -->
+                    <path d="M 0 0 L 190 0 A 190 190 0 0 1 134.35 134.35 Z" fill="#b91c1c" transform="rotate(292.5)"/>
+                    <text x="120" y="0" dominant-baseline="middle" fill="#7f1d1d" font-weight="bold" font-size="20" transform="rotate(315)">0x</text>
+                </g>
+                <circle cx="190" cy="190" r="190" fill="none" stroke="#eab308" stroke-width="4"/>
+            </svg>
+            <div class="wheel-center">GO</div>
+        </div>
+
+        <!-- Mensajes y Resultado -->
+        <div id="status-message" class="text-center font-semibold text-gray-400 mb-4 h-6">
+            Introduce una apuesta y presiona 'GIRAR'.
+        </div>
+        
+        <!-- Aquí se mostrará la animación del premio -->
+        <div id="result-message" class="text-center font-extrabold h-16 flex flex-col justify-center items-center">
+            <span id="multiplier-display" class="text-gray-500 text-lg"></span>
+            <span id="prize-display" class="text-gray-200 text-4xl"></span>
+        </div>
+
+        <!-- Historial de Jugadas -->
+        <div class="mt-8">
+            <h3 class="text-lg font-semibold border-b border-gray-700 pb-2 mb-2 text-gray-400 uppercase">Historial de Giros</h3>
+            <div id="log-container" class="max-h-40 overflow-y-auto bg-gray-900 border border-gray-800 p-3 rounded-md text-sm text-gray-500">
+                <!-- Entradas del log aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Wheel configuration (45 degrees per sector)
+        const INDICATOR_ANGLE = 0; 
+
+        const SECTORS = [
+            // stopAngle is the center angle of the sector in the SVG coordinate system (0=right)
+            { id: 'x50', multiplier: 50.0, probability: 0.05, stopAngle: 0 }, 
+            { id: 'x25', multiplier: 25.0, probability: 0.05, stopAngle: 45 },  
+            { id: 'x10', multiplier: 10.0, probability: 0.10, stopAngle: 90 },  
+            { id: 'x5', multiplier: 5.0, probability: 0.10, stopAngle: 135 },   
+            { id: 'x3', multiplier: 3.0, probability: 0.15, stopAngle: 180 },   
+            { id: 'x2', multiplier: 2.0, probability: 0.15, stopAngle: 225 },   
+            { id: 'x1_5', multiplier: 1.5, probability: 0.20, stopAngle: 270 }, 
+            { id: 'x0', multiplier: 0.0, probability: 0.20, stopAngle: 315 },  
+        ];
+
+        // Game State
+        let balance = 1000;
+        let isSpinning = false;
+
+        // DOM Elements
+        const balanceDisplay = document.getElementById('balance-display');
+        const betInput = document.getElementById('bet-input');
+        const btnSpin = document.getElementById('btn-spin');
+        const wheelSVG = document.getElementById('wheel-svg');
+        const statusMessage = document.getElementById('status-message');
+        const multiplierDisplay = document.getElementById('multiplier-display');
+        const prizeDisplay = document.getElementById('prize-display');
+        const logContainer = document.getElementById('log-container');
+
+        // Utility function for currency formatting
+        function formatCurrency(amount) {
+            return amount.toLocaleString('es-ES', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+        
+        // --- Incremental Count Up Animation ---
+        function animateCountUp(targetElement, finalAmount, duration = 2000) {
+            const startAmount = 0;
+            let currentAmount = startAmount;
+            const stepTime = 10; // Update every 10ms
+            const totalSteps = duration / stepTime;
+            const stepValue = finalAmount / totalSteps;
+
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    currentAmount += stepValue;
+
+                    if (currentAmount >= finalAmount) {
+                        clearInterval(interval);
+                        currentAmount = finalAmount;
+                        resolve();
+                    }
+
+                    // Format and display the current amount
+                    targetElement.textContent = formatCurrency(Math.floor(currentAmount));
+                }, stepTime);
+            });
+        }
+        
+        // Log events to history
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry py-1 ' + (type === 'win' ? 'text-green-400' : type === 'loss' ? 'text-red-400' : 'text-gray-500');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.prepend(entry);
+            if (logContainer.children.length > 20) {
+                logContainer.lastChild.remove();
+            }
+        }
+
+        // ----------------------------------------------------
+        // LOGIC FOR SELECTION AND STOP ANGLE CALCULATION
+        // ----------------------------------------------------
+
+        /**
+         * Selects a sector based on its probability (Weight)
+         * @returns {object} The winning sector.
+         */
+        function selectWinningSector() {
+            let totalWeight = SECTORS.reduce((sum, sector) => sum + sector.probability, 0);
+            let randomNum = Math.random() * totalWeight;
+            
+            let cumulativeWeight = 0;
+            for (const sector of SECTORS) {
+                cumulativeWeight += sector.probability;
+                if (randomNum < cumulativeWeight) {
+                    return sector;
+                }
+            }
+            // Fallback
+            return SECTORS[SECTORS.length - 1]; 
+        }
+
+        /**
+         * Calculates the exact angle where the wheel should stop.
+         * @param {object} winningSector - The selected sector.
+         * @returns {number} The total rotation angle.
+         */
+        function calculateStopAngle(winningSector) {
+            const targetAngle = winningSector.stopAngle; 
+
+            // Precision deviation: small variation within the sector (± 18 degrees).
+            const deviation = (Math.random() * 36) - 18; // Range [-18, 18]
+
+            // Rotation Offset (Indicator Angle is 0 degrees):
+            let rotationOffset = 360 - ((targetAngle + deviation) % 360);
+            
+            // Ensure full spins (minimum 5) for visual effect.
+            const fullSpins = 5;
+            const fullRotation = fullSpins * 360;
+
+            // Total Rotation Angle: Full spins + the offset to stop at the correct point.
+            return fullRotation + rotationOffset;
+        }
+
+        // ----------------------------------------------------
+        // GAME AND UI LOGIC
+        // ----------------------------------------------------
+
+        function updateUI() {
+            balanceDisplay.textContent = formatCurrency(balance);
+            // Disable button if spinning, insufficient balance, or bet is invalid
+            btnSpin.disabled = isSpinning || balance < Number(betInput.value) || Number(betInput.value) <= 0;
+        }
+
+        /**
+         * Clears all win/loss classes from result displays.
+         */
+        function clearResultClasses() {
+            multiplierDisplay.classList.remove('win-text', 'loss-text', 'text-gray-500');
+            prizeDisplay.classList.remove('win-text', 'loss-text');
+        }
+
+        async function spinWheel() {
+            const bet = Number(betInput.value);
+
+            if (isSpinning || bet <= 0 || balance < bet) return;
+
+            // 1. Deduct bet and update UI
+            isSpinning = true;
+            balance -= bet;
+            updateUI();
+            
+            // Clear messages and set spinning status
+            clearResultClasses(); // Clear any previous coloring
+            statusMessage.textContent = "¡GIRANDO RUEDA!";
+            multiplierDisplay.textContent = "";
+            prizeDisplay.textContent = "";
+
+            // 2. Determine winner and stop angle
+            const winningSector = selectWinningSector();
+            const degrees = calculateStopAngle(winningSector);
+            
+            // 3. Apply rotation and CSS animation
+            const spinDuration = 6000; // 6 seconds spin
+            
+            wheelSVG.style.transition = `transform ${spinDuration / 1000}s cubic-bezier(0.35, 0.01, 0, 1)`;
+            wheelSVG.style.transform = `rotate(${degrees}deg)`;
+
+            // Wait for the wheel to stop
+            await new Promise(resolve => setTimeout(resolve, spinDuration + 50));
+
+            // 4. Resolve the result
+            isSpinning = false;
+            
+            // 4a. Reset transition and maintain final angle
+            wheelSVG.style.transition = 'none'; 
+            let finalRotation = degrees % 360;
+            if (finalRotation < 0) finalRotation += 360; 
+            wheelSVG.style.transform = `rotate(${finalRotation}deg)`;
+
+            // 4b. Calculate Winnings
+            const multiplier = winningSector.multiplier;
+            const winAmount = bet * multiplier;
+
+            if (multiplier > 0) {
+                // WINNING CASE
+                
+                // Set text and apply win class
+                multiplierDisplay.textContent = `¡GANAS! Multiplicador: ${multiplier.toFixed(2)}x`;
+                multiplierDisplay.classList.add('win-text');
+                
+                // Animate the prize amount
+                prizeDisplay.classList.add('win-text');
+                statusMessage.textContent = "CALCULANDO PREMIO...";
+                
+                // Animation duration for counting up
+                const countDuration = Math.min(2000, winAmount * 50); // Max 2 seconds, or 50ms per Euro
+
+                await animateCountUp(prizeDisplay, winAmount, countDuration);
+                
+                balance += winAmount;
+
+                // Final status message
+                statusMessage.textContent = "¡PREMIO AÑADIDO AL SALDO!";
+                log(`Apuesta ${formatCurrency(bet)}. Ganador ${multiplier.toFixed(2)}x. Premio: ${formatCurrency(winAmount)}. Saldo: ${formatCurrency(balance)}`, 'win');
+                
+            } else {
+                // LOSING CASE (0x)
+                
+                // Set text and apply loss class
+                multiplierDisplay.textContent = `¡FALLO! Multiplicador: 0x`;
+                multiplierDisplay.classList.add('loss-text');
+                
+                prizeDisplay.textContent = formatCurrency(-bet);
+                prizeDisplay.classList.add('loss-text');
+                
+                statusMessage.textContent = "PÉRDIDA TOTAL.";
+                log(`Apuesta ${formatCurrency(bet)}. Resultado 0x. Pérdida: ${formatCurrency(bet)}. Saldo: ${formatCurrency(balance)}`, 'loss');
+            }
+            
+            updateUI();
+        }
+
+        // ----------------------------------------------------
+        // INITIALIZATION
+        // ----------------------------------------------------
+
+        function init() {
+            // Ensure the wheel starts at 0 degrees.
+            wheelSVG.style.transform = 'rotate(0deg)'; 
+
+            balanceDisplay.textContent = formatCurrency(balance);
+            
+            // Event Listeners
+            btnSpin.addEventListener('click', spinWheel);
+            betInput.addEventListener('input', updateUI);
+            
+            // Initial UI update to enable the button if bet > 0
+            updateUI();
+            log("JUEGO INICIADO. Suerte.", "info");
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

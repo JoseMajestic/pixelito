@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Le Bandit Style - Slot Machine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(ellipse at top, #0a0f1f 0%, #050811 100%);
+      color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1300px;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(8, 14, 28, 0.95);
+      border-radius: 24px;
+      padding: 24px 28px 28px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(120, 180, 255, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(74, 144, 226, 0.05) 0%, transparent 70%);
+      z-index: -1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      font-size: 28px;
+      letter-spacing: 0.05em;
+      background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 10px rgba(120, 180, 255, 0.2);
+    }
+
+    .title-block p {
+      font-size: 13px;
+      color: #9fb3c8;
+      margin-top: 6px;
+      max-width: 600px;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .metric {
+      padding: 10px 16px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(15, 42, 87, 0.9), rgba(8, 22, 48, 0.9));
+      border: 1px solid rgba(90, 160, 255, 0.4);
+      font-size: 12px;
+      text-align: right;
+      min-width: 140px;
+      backdrop-filter: blur(10px);
+    }
+
+    .metric-label {
+      color: #9fb3c8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 10px;
+    }
+
+    .metric-value {
+      font-weight: 700;
+      margin-top: 4px;
+      font-size: 15px;
+      color: #f1f5f9;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.5fr) minmax(320px, 1fr);
+      gap: 22px;
+      align-items: flex-start;
+    }
+
+    /* Slot principal */
+    .slot-container {
+      position: relative;
+    }
+
+    .slot-shell {
+      background: radial-gradient(circle at top, #1e2a47 0%, #0b1020 70%);
+      border-radius: 22px;
+      padding: 18px 20px 22px;
+      border: 1px solid rgba(120, 180, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slot-shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(
+        from 120deg,
+        transparent,
+        rgba(0, 255, 200, 0.15),
+        transparent,
+        rgba(120, 180, 255, 0.25),
+        transparent
+      );
+      opacity: 0.4;
+      filter: blur(35px);
+      z-index: -1;
+      animation: rotateGlow 20s linear infinite;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(120, 180, 255, 0.2);
+    }
+
+    .slot-header span {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #b3c8ff;
+    }
+
+    .slot-grid-container {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .lines-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .line-path {
+      position: absolute;
+      stroke: rgba(74, 222, 128, 0.7);
+      stroke-width: 2;
+      fill: none;
+      filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.5));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .line-path.active {
+      opacity: 1;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(3, 90px);
+      gap: 8px;
+      padding: 12px;
+      background: radial-gradient(circle at center, #151b30 0%, #050811 80%);
+      border-radius: 18px;
+      border: 2px solid rgba(70, 110, 170, 0.8);
+      box-shadow: 
+        inset 0 0 25px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(70, 110, 170, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .reel {
+      perspective: 800px;
+    }
+
+    .cell {
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #223045 0%, #080c15 65%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      position: relative;
+      transition: all 0.3s ease-out;
+      border: 1px solid rgba(70, 110, 170, 0.8);
+      transform-style: preserve-3d;
+      overflow: hidden;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .cell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+      border-radius: 14px 14px 0 0;
+    }
+
+    .cell.spinning {
+      animation: reelSpin 0.1s infinite linear;
+    }
+
+    @keyframes reelSpin {
+      0% { transform: translateY(-100px); }
+      100% { transform: translateY(100px); }
+    }
+
+    .cell.win {
+      transform: scale(1.08);
+      background: radial-gradient(circle at center, #1d794a 0%, #0b2318 70%);
+      box-shadow: 
+        0 0 25px rgba(72, 255, 170, 0.9),
+        inset 0 0 15px rgba(255, 255, 255, 0.2);
+      border-color: rgba(72, 255, 170, 0.9);
+      z-index: 10;
+      animation: pulseWin 0.6s ease-in-out 3;
+    }
+
+    @keyframes pulseWin {
+      0%, 100% { transform: scale(1.08); }
+      50% { transform: scale(1.15); }
+    }
+
+    .cell.scatter {
+      background: radial-gradient(circle at center, #9333ea 0%, #4c1d95 70%);
+      border-color: rgba(192, 132, 252, 0.9);
+    }
+
+    .cell.wild {
+      background: radial-gradient(circle at center, #f59e0b 0%, #92400e 70%);
+      border-color: rgba(251, 191, 36, 0.9);
+    }
+
+    /* Controles principales */
+    .main-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .bet-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9fb3c8;
+    }
+
+    .field input {
+      margin-top: 6px;
+      background: #050a14;
+      border-radius: 999px;
+      border: 1px solid rgba(120, 180, 255, 0.6);
+      padding: 8px 14px;
+      color: #f7f7f7;
+      font-size: 15px;
+      font-weight: 600;
+      width: 120px;
+      outline: none;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .field input:focus {
+      border-color: #ffffff;
+      box-shadow: 0 0 15px rgba(120, 180, 255, 0.5);
+    }
+
+    .bet-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .bet-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 42, 87, 0.8);
+      border: 1px solid rgba(90, 160, 255, 0.4);
+      color: #cbd5e1;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bet-btn:hover {
+      background: rgba(30, 64, 120, 0.8);
+      border-color: rgba(120, 180, 255, 0.8);
+    }
+
+    .bet-btn.active {
+      background: linear-gradient(120deg, #3b82f6, #1d4ed8);
+      border-color: #60a5fa;
+      color: white;
+    }
+
+    /* Botones de acción */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 28px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease-out;
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .button::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.7s;
+    }
+
+    .button:hover::after {
+      left: 100%;
+    }
+
+    .spin-btn {
+      background: linear-gradient(120deg, #10b981, #059669);
+      color: #04120b;
+      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
+      min-width: 160px;
+    }
+
+    .spin-btn:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
+    }
+
+    .spin-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: linear-gradient(120deg, #6b7280, #4b5563);
+      box-shadow: none;
+      color: #e5e7eb;
+    }
+
+    .auto-btn {
+      background: linear-gradient(120deg, #f59e0b, #d97706);
+      color: white;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5);
+      padding: 12px 20px;
+    }
+
+    .maxbet-btn {
+      background: linear-gradient(120deg, #ef4444, #dc2626);
+      color: white;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+      padding: 12px 20px;
+    }
+
+    .info-btn {
+      background: linear-gradient(120deg, #8b5cf6, #7c3aed);
+      color: white;
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+      padding: 12px 20px;
+    }
+
+    .button span.icon {
+      font-size: 18px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: radial-gradient(circle at top, #151a30 0%, #050811 80%);
+      border-radius: 20px;
+      padding: 18px 16px 20px;
+      border: 1px solid rgba(120, 180, 255, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      height: 100%;
+    }
+
+    .balance-section {
+      background: rgba(6, 10, 25, 0.7);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(51, 65, 85, 0.7);
+    }
+
+    .sidebar-block-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .balance-display {
+      font-size: 36px;
+      font-weight: 800;
+      margin: 8px 0;
+      background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 10px rgba(120, 180, 255, 0.3);
+    }
+
+    .win-display {
+      font-size: 22px;
+      font-weight: 700;
+      color: #4ade80;
+      margin: 5px 0;
+      min-height: 32px;
+    }
+
+    .countdown {
+      font-size: 13px;
+      margin-top: 8px;
+      color: #a5b4fc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.55);
+      color: #bbf7d0;
+      margin-top: 12px;
+    }
+
+    .tag span.icon {
+      font-size: 15px;
+    }
+
+    /* Control de líneas */
+    .lines-control {
+      background: rgba(6, 10, 25, 0.7);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(51, 65, 85, 0.7);
+    }
+
+    .line-counter {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 10px 0;
+      color: #f1f5f9;
+    }
+
+    .lines-slider {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, #1e40af, #3b82f6, #1e40af);
+      border-radius: 999px;
+      outline: none;
+      margin-top: 12px;
+    }
+
+    .lines-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(120deg, #f59e0b, #d97706);
+      border: 3px solid white;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Log de sesión */
+    .log-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 250px;
+    }
+
+    .log {
+      flex: 1;
+      background: rgba(6, 10, 25, 0.9);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 12px;
+      overflow-y: auto;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      margin-top: 8px;
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .clear-log {
+      background: none;
+      border: 1px solid rgba(239, 68, 68, 0.6);
+      color: #fecaca;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-log:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .log-entry {
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .log-entry span.label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #64748b;
+      font-size: 10px;
+      margin-right: 8px;
+      font-weight: 600;
+    }
+
+    .log-entry.win {
+      color: #bbf7d0;
+      background: rgba(34, 197, 94, 0.1);
+      border-left: 3px solid #4ade80;
+    }
+
+    .log-entry.spin {
+      color: #cbd5f5;
+      border-left: 3px solid #60a5fa;
+    }
+
+    .log-entry.bonus {
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+    }
+
+    .log-entry.system {
+      color: #a5b4fc;
+      border-left: 3px solid #8b5cf6;
+    }
+
+    /* Modal de pagos */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: radial-gradient(circle at top, #1e2a47 0%, #0b1020 100%);
+      border-radius: 24px;
+      padding: 30px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(120, 180, 255, 0.4);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(120, 180, 255, 0.3);
+    }
+
+    .modal-header h2 {
+      font-size: 24px;
+      background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 28px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close-modal:hover {
+      color: #f1f5f9;
+    }
+
+    .paytable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .paytable th {
+      background: rgba(15, 42, 87, 0.8);
+      padding: 12px 15px;
+      text-align: center;
+      color: #cbd5e1;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid rgba(120, 180, 255, 0.3);
+    }
+
+    .paytable td {
+      padding: 12px 15px;
+      text-align: center;
+      border: 1px solid rgba(120, 180, 255, 0.2);
+      color: #e2e8f0;
+    }
+
+    .paytable tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .symbol-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .symbol-cell span {
+      font-size: 24px;
+    }
+
+    .multiplier {
+      font-weight: 700;
+      color: #4ade80;
+    }
+
+    /* Indicadores */
+    .indicators {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .indicator {
+      background: rgba(6, 10, 25, 0.7);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      border: 1px solid rgba(51, 65, 85, 0.7);
+    }
+
+    .indicator-value {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 5px 0;
+      color: #f1f5f9;
+    }
+
+    .indicator-label {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .slot-grid {
+        grid-template-rows: repeat(3, 70px);
+      }
+      
+      .cell {
+        font-size: 32px;
+      }
+      
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .metrics {
+        justify-content: flex-start;
+      }
+      
+      .main-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .action-buttons {
+        justify-content: center;
+      }
+      
+      .balance-display {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .slot-grid {
+        grid-template-rows: repeat(3, 60px);
+        gap: 6px;
+        padding: 8px;
+      }
+      
+      .cell {
+        font-size: 26px;
+      }
+      
+      .button {
+        padding: 10px 16px;
+        font-size: 12px;
+      }
+      
+      .spin-btn {
+        min-width: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div class="title-block">
+          <h1>LE BANDIT STYLE - Slot Machine</h1>
+          <p>Tragaperras con estilo Le Bandit. Sistema de líneas de pago, símbolos especiales y bonos. ¡Demo educativa!</p>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Saldo inicial</div>
+            <div class="metric-value">50.000 €</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Líneas máximas</div>
+            <div class="metric-value">20 líneas</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Apuesta máxima</div>
+            <div class="metric-value">1.000 €</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="slot-container">
+          <div class="slot-shell">
+            <div class="slot-header">
+              <span>Slot Machine - 5x3 Reels</span>
+              <span id="statusText">¡Configura y juega!</span>
+            </div>
+            
+            <div class="slot-grid-container">
+              <svg class="lines-overlay" id="linesOverlay"></svg>
+              <div class="slot-grid" id="slotGrid"></div>
+            </div>
+
+            <div class="main-controls">
+              <div class="bet-controls">
+                <div class="field">
+                  <label for="betInput">Apuesta / línea</label>
+                  <input id="betInput" type="number" min="1" max="1000" value="10" />
+                  <div class="bet-buttons">
+                    <button class="bet-btn" data-bet="5">5</button>
+                    <button class="bet-btn active" data-bet="10">10</button>
+                    <button class="bet-btn" data-bet="25">25</button>
+                    <button class="bet-btn" data-bet="50">50</button>
+                    <button class="bet-btn" data-bet="100">100</button>
+                  </div>
+                </div>
+                
+                <div class="indicators">
+                  <div class="indicator">
+                    <div class="indicator-label">Apuesta total</div>
+                    <div class="indicator-value" id="totalBet">200 €</div>
+                  </div>
+                  <div class="indicator">
+                    <div class="indicator-label">Última ganancia</div>
+                    <div class="indicator-value" id="lastWin">0 €</div>
+                  </div>
+                  <div class="indicator">
+                    <div class="indicator-label">Líneas ganadoras</div>
+                    <div class="indicator-value" id="winningLines">0</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="action-buttons">
+                <button id="autoSpinButton" class="button auto-btn">
+                  <span class="icon">🔄</span>
+                  <span>Auto (5)</span>
+                </button>
+                <button id="maxBetButton" class="button maxbet-btn">
+                  <span class="icon">⚡</span>
+                  <span>Max Bet</span>
+                </button>
+                <button id="infoButton" class="button info-btn">
+                  <span class="icon">ℹ️</span>
+                  <span>Pagos</span>
+                </button>
+                <button id="spinButton" class="button spin-btn">
+                  <span class="icon">▶️</span>
+                  <span>SPIN</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar">
+          <div class="balance-section">
+            <div class="sidebar-block-title">Saldo actual</div>
+            <div id="balanceDisplay" class="balance-display">50.000 €</div>
+            <div id="winDisplay" class="win-display"></div>
+            
+            <div class="countdown">
+              <i class="fas fa-gift"></i>
+              <span id="countdown">Próximo bono: 30 s</span>
+            </div>
+            
+            <div class="tag">
+              <span class="icon">💎</span>
+              <span>3+ Scatters = 10 Giros Gratis</span>
+            </div>
+          </div>
+
+          <div class="lines-control">
+            <div class="sidebar-block-title">Líneas activas</div>
+            <div class="line-counter" id="linesCounter">20 / 20</div>
+            <input type="range" min="1" max="20" value="20" class="lines-slider" id="linesSlider">
+          </div>
+
+          <div class="log-section">
+            <div class="sidebar-block-title">Registro de juego</div>
+            <div class="log-header">
+              <span>Eventos recientes</span>
+              <button class="clear-log" id="clearLogBtn">Limpiar</button>
+            </div>
+            <div id="log" class="log"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de tabla de pagos -->
+  <div class="modal" id="paytableModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tabla de Pagos</h2>
+        <button class="close-modal" id="closeModalBtn">&times;</button>
+      </div>
+      
+      <table class="paytable">
+        <thead>
+          <tr>
+            <th>Símbolo</th>
+            <th>3 símbolos</th>
+            <th>4 símbolos</th>
+            <th>5 símbolos</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="symbol-cell"><span>🤠</span> Bandit</td>
+            <td class="multiplier">10x</td>
+            <td class="multiplier">25x</td>
+            <td class="multiplier">100x</td>
+            <td>Símbolo de mayor valor</td>
+          </tr>
+          <tr>
+            <td class="symbol-cell"><span>👩</span> Femme</td>
+            <td class="multiplier">8x</td>
+            <td class="multiplier">20x</td>
+            <td class="multiplier">80x</td>
+            <td>Símbolo premium</td>
+          </tr>
+          <tr>
+            <td class="symbol-cell"><span>👮</span> Sheriff</td>
+            <td class="multiplier">6x</td>
+            <td class="multiplier">15x</td>
+            <td class="multiplier">60x</td>
+            <td>Símbolo alto</td>
+          </tr>
+          <tr>
+            <td class="symbol-cell"><span>💰</span> Bolsa</td>
+            <td class="multiplier">5x</td>
+            <td class="multiplier">12x</td>
+            <td class="multiplier">50x</td>
+            <td>Símbolo medio</td>
+          </tr>
+          <tr>
+            <td class="symbol-cell"><span>🔫</span> Pistola</td>
+            <td class="multiplier">4x</td>
+            <td class="multiplier">10x</td>
+            <td class="multiplier">40x</td>
+            <td>Símbolo bajo</td>
+          </tr>
+          <tr>
+            <td class="symbol-cell"><span>🤵</span> Wild</td>
+            <td class="multiplier">-</td>
+            <td class="multiplier">-</td>
+            <td class="multiplier">-</td>
+            <td>Sustituye cualquier símbolo</td>
+          </tr>
+          <tr>
+            <td class="symbol-cell"><span>⭐</span> Scatter</td>
+            <td class="multiplier">2x</td>
+            <td class="multiplier">5x</td>
+            <td class="multiplier">20x</td>
+            <td>Paga en cualquier posición + giros gratis</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div style="margin-top: 25px; padding: 15px; background: rgba(15, 42, 87, 0.3); border-radius: 12px;">
+        <h3 style="margin-bottom: 10px; color: #cbd5e1;">Cómo funciona:</h3>
+        <p style="color: #94a3b8; line-height: 1.6;">
+          • Las ganancias se calculan: <strong>Apuesta por línea × Multiplicador × Número de líneas ganadoras</strong><br>
+          • 3 o más símbolos Scatter en cualquier posición activan 10 giros gratis<br>
+          • El símbolo Wild sustituye a cualquier símbolo regular para formar combinaciones ganadoras<br>
+          • Las líneas de pago se evalúan de izquierda a derecha comenzando desde el carril izquierdo
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====================
+    // CONFIGURACIÓN
+    // ====================
+    const CONFIG = {
+      ROWS: 3,
+      COLS: 5,
+      START_BALANCE: 50000,
+      MIN_BET: 1,
+      MAX_BET: 1000,
+      BONUS_EVERY_MS: 30000

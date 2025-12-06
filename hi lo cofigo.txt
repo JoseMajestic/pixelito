@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>High Card / Low Card: Shuffle Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* Estilos Tailwind-like para un diseño moderno y responsive */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #050816 0, #020308 60%);
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .card-shell {
+      background: radial-gradient(circle at top, #141627 0, #050712 70%);
+      border-radius: 24px;
+      padding: 20px 22px 22px;
+      border: 1px solid rgba(129, 140, 248, 0.5);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-shell::before {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(
+        from 220deg,
+        transparent,
+        rgba(139, 92, 246, 0.4),
+        transparent,
+        rgba(56, 189, 248, 0.35),
+        transparent
+      );
+      opacity: 0.35;
+      filter: blur(40px);
+      z-index: -1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .title-block h1 {
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .title-block p {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .metric {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 11px;
+      text-align: right;
+      min-width: 120px;
+    }
+
+    .metric-label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .metric-value {
+      font-weight: 600;
+      margin-top: 2px;
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Mesa central */
+
+    .table {
+      background: radial-gradient(circle at top, #111827 0, #020617 70%);
+      border-radius: 18px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 16px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #a5b4fc;
+    }
+
+    .status-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.7);
+      background: rgba(30, 64, 175, 0.3);
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .card-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #9ca3af;
+    }
+
+    .playing-card {
+      width: 120px;
+      height: 170px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #f9fafb 0, #e5e7eb 50%, #d1d5db 100%);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 10px 12px;
+      position: relative;
+      transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
+    }
+
+    .playing-card.hidden {
+      background: radial-gradient(circle at top, #111827 0, #020617 70%);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      box-shadow: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .playing-card.hidden .rank,
+    .playing-card.hidden .suit,
+    .playing-card.hidden .center {
+      display: none;
+    }
+    
+    .playing-card.hidden::after {
+        content: '?';
+        font-size: 50px;
+        color: rgba(148, 163, 184, 0.6);
+    }
+
+    .playing-card .corner {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .playing-card .corner.bottom {
+      align-self: flex-end;
+      transform: rotate(180deg);
+    }
+
+    .playing-card .center {
+      font-size: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .red {
+      color: #b91c1c;
+    }
+
+    .black {
+      color: #111827;
+    }
+
+    .vs-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #e5e7eb;
+    }
+
+    /* Controles */
+
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bet-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #9ca3af;
+    }
+
+    .field input {
+      margin-top: 4px;
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      padding: 6px 10px;
+      color: #f9fafb;
+      font-size: 13px;
+      width: 80px;
+      outline: none;
+      /* Ocultar flechas en inputs de tipo number */
+      -moz-appearance: textfield;
+    }
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+
+    .field input:focus {
+      border-color: #e5e7eb;
+    }
+
+    .target-info {
+      font-size: 11px;
+      color: #d1d5db;
+      line-height: 1.4;
+    }
+
+    .target-info span.highlight {
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: transform 0.06s ease-out, box-shadow 0.12s ease-out, filter 0.12s ease-out;
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, #a855f7, #6366f1);
+      color: #f9fafb;
+      box-shadow: 0 14px 30px rgba(79, 70, 229, 0.8);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(120deg, #0ea5e9, #22c55e);
+      color: #022c22;
+      box-shadow: 0 14px 30px rgba(8, 47, 73, 0.8);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: none;
+    }
+
+    .btn:active:not(.disabled) {
+      transform: translateY(1px) scale(0.99);
+      filter: brightness(0.96);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
+    }
+
+    .btn.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+      filter: grayscale(0.3);
+    }
+
+    .btn .tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    /* Sidebar */
+
+    .sidebar {
+      background: radial-gradient(circle at top, #020617 0, #000000 70%);
+      border-radius: 18px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      padding: 14px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #9ca3af;
+    }
+
+    .balance-main {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .muted {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .chips-row {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+    }
+
+    .log {
+      margin-top: 6px;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 12px;
+      padding: 8px;
+      font-size: 11px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      max-height: 210px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+    }
+
+    .log-entry.win {
+      color: #bbf7d0;
+    }
+
+    .log-entry.loss {
+      color: #fecaca;
+    }
+
+    .log-entry span.label {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 9px;
+      color: #6b7280;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card-shell">
+      <div class="header">
+        <div class="title-block">
+          <h1>Carta Alta / Baja &mdash; Demo</h1>
+          <p>Simulación HTML del juego de carta alta/baja con **rachas y cashout**.</p>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Saldo inicial</div>
+            <div class="metric-value" id="metricStart">1.000 €</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Riesgo</div>
+            <div class="metric-value" id="metricRisk">Medio</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Multiplicador actual</div>
+            <div class="metric-value" id="metricMult">H 1.00x · L 1.00x</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="table">
+          <div class="status-row">
+            <div>Estado: <span id="statusText" class="status-pill">Nueva ronda lista</span></div>
+            <div id="roundInfo" style="font-size:11px;color:#9ca3af;"></div>
+          </div>
+
+          <div class="cards-row">
+            <div class="card-col">
+              <div class="card-label">Carta actual</div>
+              <div id="currentCard" class="playing-card">
+                <div class="corner top rank red">A</div>
+                <div class="center suit red">♥</div>
+                <div class="corner bottom rank red">A</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;">
+              <div class="vs-pill">Siguiente carta</div>
+            </div>
+            <div class="card-col">
+              <div class="card-label">Resultado</div>
+              <div id="nextCard" class="playing-card hidden">
+                <div class="corner top rank red">?</div>
+                <div class="center suit red">?</div>
+                <div class="corner bottom rank red">?</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="bet-row">
+              <div class="field">
+                <label for="betInput">Apuesta</label>
+                <input id="betInput" type="number" min="1" step="5" value="20" />
+              </div>
+              <div class="target-info">
+                Elige si la próxima carta será
+                <span class="highlight">mayor o igual</span> o
+                <span class="highlight">menor o igual</span> que la actual.
+                <span class="highlight">¡Acierta para continuar la racha!</span>
+              </div>
+            </div>
+            <div class="buttons-row">
+              <!-- Botón Mayor o Igual -->
+              <button id="btnHigher" class="btn btn-primary disabled" disabled>
+                <span>Mayor o igual</span>
+                <span id="tagHigher" class="tag">1.00x</span>
+              </button>
+              
+              <!-- Botón Menor o Igual -->
+              <button id="btnLower" class="btn btn-secondary disabled" disabled>
+                <span>Menor o igual</span>
+                <span id="tagLower" class="tag">1.00x</span>
+              </button>
+              
+              <!-- BOTÓN CASHOUT (NUEVO) -->
+              <button id="btnCashout" class="btn btn-secondary disabled" disabled>
+                Retirarse &mdash; <span id="tagCashout">0 €</span>
+              </button>
+              
+              <!-- Botón Nueva Ronda / Empezar Racha -->
+              <button id="btnNewRound" class="btn btn-ghost">
+                Empezar racha / Nueva ronda
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar">
+          <div>
+            <div class="sidebar-title">Saldo</div>
+            <div id="balanceDisplay" class="balance-main">1.000 €</div>
+            <div id="lastResult" class="muted">Sin jugadas todavía.</div>
+            <div class="chips-row">
+              <div class="chip">Valores carta: 2 &rarr; A (A=14)</div>
+              <div class="chip">Mazo infinito (probabilidades fijas)</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="sidebar-title" style="margin-top:8px;">Histórico</div>
+            <div id="log" class="log"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // MODELO DE CARTAS
+    // ---------------------------
+    const ranks = [
+      { value: 2, label: "2" },
+      { value: 3, label: "3" },
+      { value: 4, label: "4" },
+      { value: 5, label: "5" },
+      { value: 6, label: "6" },
+      { value: 7, label: "7" },
+      { value: 8, label: "8" },
+      { value: 9, label: "9" },
+      { value: 10, label: "10" },
+      { value: 11, label: "J" },
+      { value: 12, label: "Q" },
+      { value: 13, label: "K" },
+      { value: 14, label: "A" }
+    ];
+    const suits = [
+      { symbol: "♥", colorClass: "red" },
+      { symbol: "♦", colorClass: "red" },
+      { symbol: "♣", colorClass: "black" },
+      { symbol: "♠", colorClass: "black" }
+    ];
+    function drawCard() {
+      const r = ranks[Math.floor(Math.random() * ranks.length)];
+      const s = suits[Math.floor(Math.random() * suits.length)];
+      return {
+        value: r.value,
+        label: r.label,
+        suit: s.symbol,
+        colorClass: s.colorClass
+      };
+    }
+
+    // ---------------------------
+    // ESTADO
+    // ---------------------------
+    let balance = 1000;
+    const START_BALANCE = 1000;
+    let currentCard = null;
+    let nextCard = null;
+    let roundId = 1;
+    let inDecision = false;
+
+    // --- VARIABLES PARA RACHAS ---
+    let currentStreakMultiplier = 1.0; // Multiplicador acumulado
+    let currentBet = 0; // Apuesta inicial de la racha
+    // -----------------------------
+
+    const balanceDisplay = document.getElementById("balanceDisplay");
+    const statusText = document.getElementById("statusText");
+    const roundInfo = document.getElementById("roundInfo");
+    const lastResultEl = document.getElementById("lastResult");
+    const logElement = document.getElementById("log");
+    const currentCardEl = document.getElementById("currentCard");
+    const nextCardEl = document.getElementById("nextCard");
+
+    const betInput = document.getElementById("betInput");
+    const btnHigher = document.getElementById("btnHigher");
+    const btnLower = document.getElementById("btnLower");
+    const btnNewRound = document.getElementById("btnNewRound");
+    const btnCashout = document.getElementById("btnCashout"); 
+
+    const tagHigher = document.getElementById("tagHigher");
+    const tagLower = document.getElementById("tagLower");
+    const tagCashout = document.getElementById("tagCashout"); 
+    const metricMult = document.getElementById("metricMult");
+
+    // ---------------------------
+    // UTILS
+    // ---------------------------
+    function formatCurrency(value) {
+      return value.toLocaleString("es-ES", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      });
+    }
+
+    function log(message, type = "system") {
+      const entry = document.createElement("div");
+      entry.classList.add("log-entry");
+      if (type === "win") entry.classList.add("win");
+      if (type === "loss") entry.classList.add("loss");
+      const label = document.createElement("span");
+      label.classList.add("label");
+      label.textContent =
+        type === "win" ? "WIN" : type === "loss" ?
+        "LOSS" : "SYS";
+      const text = document.createElement("span");
+      text.textContent = " " + message;
+      entry.appendChild(label);
+      entry.appendChild(text);
+      logElement.prepend(entry);
+    }
+
+    function updateBalance() {
+      balanceDisplay.textContent = formatCurrency(balance);
+    }
+
+    function setStatus(text) {
+      statusText.textContent = text;
+    }
+
+    function setButtonsEnabled(enabled) {
+      const buttons = [btnHigher, btnLower];
+      buttons.forEach((btn) => {
+        if (enabled) {
+          btn.classList.remove("disabled");
+          btn.disabled = false;
+        } else {
+          btn.classList.add("disabled");
+          btn.disabled = true;
+        }
+      });
+    }
+
+    function renderCard(card, element, hidden = false) {
+      element.classList.remove("hidden");
+      const rankCorners = element.querySelectorAll(".rank");
+      const center = element.querySelector(".center");
+      const suitsInside = element.querySelectorAll(".suit");
+      element.classList.remove("red", "black");
+      
+      if (hidden) {
+        element.classList.add("hidden");
+        return;
+      }
+
+      element.classList.add(card.colorClass);
+      rankCorners.forEach((node) => {
+        node.textContent = card.label;
+      });
+      suitsInside.forEach((node) => {
+        node.textContent = card.suit;
+      });
+      if (center) {
+        center.textContent = card.suit;
+      }
+    }
+
+    // ---------------------------
+    // PROBABILIDADES Y MULTIS
+    // ---------------------------
+    function calculateProbabilities() {
+      if (!currentCard) return { higherProb: 0.5, lowerProb: 0.5 };
+      const v = currentCard.value;
+      const total = ranks.length; // 13 cartas (del 2 al A/14)
+
+      // Probabilidad de Mayor o Igual: (14 - Valor Actual + 1) / 13
+      const higherOrEqual = (ranks[ranks.length - 1].value - v + 1) / total;
+      // Probabilidad de Menor o Igual: (Valor Actual - 2 + 1) / 13
+      const lowerOrEqual = (v - ranks[0].value + 1) / total;
+      
+      return {
+        higherProb: higherOrEqual,
+        lowerProb: lowerOrEqual
+      };
+    }
+
+    function calculateMultipliers() {
+      const { higherProb, lowerProb } = calculateProbabilities();
+      const houseEdge = 0.96; // Margen de la casa teórico (4% para la demo)
+
+      const higherMulti = houseEdge / higherProb;
+      const lowerMulti = houseEdge / lowerProb;
+      
+      // Asegurarse de que el multiplicador mínimo sea 1.01x
+      return {
+        higher: Math.max(1.01, parseFloat(higherMulti.toFixed(2))),
+        lower: Math.max(1.01, parseFloat(lowerMulti.toFixed(2)))
+      };
+    }
+
+    function updateMultipliersUI() {
+      const { higher, lower } = calculateMultipliers();
+      tagHigher.textContent = higher.toFixed(2) + "x";
+      tagLower.textContent = lower.toFixed(2) + "x";
+      metricMult.textContent =
+        "H " + higher.toFixed(2) + "x · L " + lower.toFixed(2) + "x";
+    }
+    
+    // Función para actualizar el botón de Cashout (NUEVA)
+    function updateCashoutUI() {
+        const cashoutMult = currentStreakMultiplier;
+        // Calcular la ganancia total (apuesta inicial * multiplicador acumulado)
+        const potentialWin = Math.round(currentBet * cashoutMult);
+        
+        // El texto del botón ahora muestra la ganancia potencial total
+        btnCashout.innerHTML = `Retirarse &mdash; <span id="tagCashout">${formatCurrency(potentialWin)}</span>`;
+        
+        // Si el multiplicador es 1.0 (o menos por error), se inhabilita porque no hay ganancias acumuladas
+        if (cashoutMult <= 1.0) {
+            btnCashout.classList.add("disabled");
+            btnCashout.disabled = true;
+        } else {
+            btnCashout.classList.remove("disabled");
+            btnCashout.disabled = false;
+        }
+    }
+    
+    // Función para resetear el estado de la ronda (NUEVA)
+    function resetRoundState() {
+        currentStreakMultiplier = 1.0;
+        currentBet = 0;
+        inDecision = false;
+        
+        setButtonsEnabled(false);
+        btnCashout.classList.add("disabled");
+        btnCashout.disabled = true;
+        btnCashout.innerHTML = `Retirarse &mdash; <span id="tagCashout">0 €</span>`;
+        
+        btnNewRound.disabled = false; // Habilitar botón para empezar nueva racha
+        btnNewRound.classList.remove("disabled");
+        betInput.disabled = false;
+        
+        updateMultipliersUI();
+        updateBalance();
+        
+        // Dibujar una nueva carta neutral para empezar la ronda, y ocultar la siguiente
+        currentCard = drawCard(); 
+        renderCard(currentCard, currentCardEl, false);
+        renderCard(currentCard, nextCardEl, true);
+        
+        roundInfo.textContent = "";
+        lastResultEl.textContent = "Listo para una nueva racha.";
+        setStatus("Nueva ronda lista. Configura una apuesta y pulsa 'Empezar racha'.");
+    }
+
+    // ---------------------------
+    // FLOW PRINCIPAL
+    // ---------------------------
+    
+    // La función newRound ahora INICIA LA RACHA y cobra la apuesta inicial
+    function newRound() {
+        if(inDecision) { 
+            setStatus("Ya estás en una racha. Elige mayor/menor o retírate.");
+            return;
+        }
+
+        // 1. Validar y tomar apuesta
+        currentBet = Number(betInput.value) || 0;
+        if (currentBet <= 0) {
+            setStatus("Configura una apuesta válida para empezar.");
+            log("Apuesta inválida.", "system");
+            return;
+        }
+        if (currentBet > balance) {
+            setStatus("Saldo insuficiente para la apuesta inicial.");
+            log("Intento de apuesta sin saldo suficiente.", "system");
+            return;
+        }
+
+        // 2. Establecer variables de racha y cobrar apuesta
+        currentStreakMultiplier = 1.0;
+        balance -= currentBet; // Se descuenta la apuesta inicial
+        updateBalance();
+
+        // 3. Flujo normal de inicio
+        currentCard = drawCard();
+        nextCard = null;
+        inDecision = true;
+
+        renderCard(currentCard, currentCardEl, false);
+        renderCard(currentCard, nextCardEl, true); // oculta
+
+        updateMultipliersUI();
+        updateCashoutUI(); 
+
+        setButtonsEnabled(true);
+        btnNewRound.disabled = true; 
+        btnNewRound.classList.add("disabled");
+        betInput.disabled = true; 
+
+        setStatus(`Ronda ${roundId}. Apuesta: ${formatCurrency(currentBet)}. ¡A jugar!`);
+        roundInfo.textContent = `Racha #${roundId} | Apuesta: ${formatCurrency(currentBet)}`;
+        lastResultEl.textContent = `Racha ${roundId} en progreso (x${currentStreakMultiplier.toFixed(2)}).`;
+        roundId += 1;
+    }
+
+    // La función resolveBet ahora CONTINÚA LA RACHA o la termina
+    function resolveBet(direction) {
+      if (!inDecision) return;
+
+      const bet = currentBet;
+      if (bet <= 0) return; 
+
+      inDecision = false;
+      setButtonsEnabled(false);
+      btnCashout.disabled = true; 
+      btnCashout.classList.add("disabled");
+
+      // Animación de "revelar"
+      setStatus("Revelando carta...");
+      setTimeout(() => {
+        nextCard = drawCard();
+        renderCard(nextCard, nextCardEl, false); // Revela la carta
+
+        const { higher, lower } = calculateMultipliers();
+        const chosenMult = direction === "higher" ? higher : lower;
+
+        let win = false;
+        if (direction === "higher") {
+          win = nextCard.value >= currentCard.value;
+        } else {
+          win = nextCard.value <= currentCard.value;
+        }
+
+        if (win) {
+          // --- GANA: CONTINÚA LA RACHA ---
+          currentStreakMultiplier *= chosenMult; // Acumular multiplicador
+
+          // La próxima carta se convierte en la actual para la siguiente decisión
+          currentCard = nextCard; 
+
+          // Preparar para la siguiente sub-ronda (pequeño delay visual)
+          setTimeout(() => {
+            renderCard(currentCard, currentCardEl, false);
+            renderCard(currentCard, nextCardEl, true); // Oculta de nuevo
+            updateMultipliersUI();
+            updateCashoutUI();
+
+            inDecision = true;
+            setButtonsEnabled(true);
+            btnCashout.disabled = false; 
+            btnCashout.classList.remove("disabled");
+
+            setStatus(
+                `¡Acierto! Multiplicador total: x${currentStreakMultiplier.toFixed(2)}. Elige de nuevo o retírate.`
+            );
+            roundInfo.textContent = `Racha # ${roundId-1} | Multiplicador: x${currentStreakMultiplier.toFixed(2)}`;
+            lastResultEl.textContent = `Carta: ${currentCard.label}${currentCard.suit}. Ganancia potencial: ${formatCurrency(currentBet * currentStreakMultiplier)}.`;
+            log(`Acierto: ${direction === "higher" ? "mayor/igual" : "menor/igual"} (x${chosenMult.toFixed(2)}). Total x${currentStreakMultiplier.toFixed(2)}.`, "win");
+          }, 500);
+          
+        } else {
+          // --- PIERDE: FIN DE LA RACHA ---
+          const finalLoss = currentBet;
+          setStatus("¡Fallo! La racha ha terminado. Pierdes la apuesta inicial.");
+          lastResultEl.textContent = `Fallo: -${formatCurrency(finalLoss)} de tu apuesta inicial. Carta: ${nextCard.label}${nextCard.suit}.`;
+          log(
+              `Fallo. Racha terminada con carta ${nextCard.label}${nextCard.suit}. Apuesta inicial perdida: ${formatCurrency(finalLoss)}.`,
+              "loss"
+          );
+          
+          resetRoundState(); // Reiniciar estado
+        }
+      }, 260);
+    }
+    
+    // Función para manejar el Cashout (NUEVA)
+    function doCashout() {
+        if (!inDecision || currentStreakMultiplier <= 1.0) return;
+
+        const totalWin = Math.round(currentBet * currentStreakMultiplier);
+        balance += totalWin; // Sumar apuesta inicial + todas las ganancias
+        updateBalance();
+
+        setStatus(`¡Cashout exitoso! Ganancia total de ${formatCurrency(totalWin)} (x${currentStreakMultiplier.toFixed(2)}).`);
+        lastResultEl.textContent = `Cashout: Ganancia total de ${formatCurrency(totalWin)}.`;
+        log(
+            `Cashout de apuesta ${formatCurrency(currentBet)}. Ganancia final ${formatCurrency(
+                totalWin
+            )} (x${currentStreakMultiplier.toFixed(2)}).`,
+            "win"
+        );
+
+        resetRoundState(); // Reiniciar estado
+    }
+
+
+    // ---------------------------
+    // EVENTOS
+    // ---------------------------
+    btnNewRound.addEventListener("click", () => {
+      newRound();
+    });
+    
+    btnCashout.addEventListener("click", () => {
+        if (btnCashout.disabled) return;
+        doCashout();
+    }); 
+    
+    // Eventos para elegir Mayor/Menor (inicia la ronda si no ha comenzado)
+    btnHigher.addEventListener("click", () => {
+        if (!inDecision) newRound();
+        if (btnHigher.disabled) return;
+        resolveBet("higher");
+    });
+    
+    btnLower.addEventListener("click", () => {
+        if (!inDecision) newRound();
+        if (btnLower.disabled) return;
+        resolveBet("lower");
+    });
+
+
+    // ---------------------------
+    // INIT
+    // ---------------------------
+    function init() {
+      // Inicializar balance en pantalla
+      document.getElementById("metricStart").textContent = formatCurrency(START_BALANCE);
+      balance = START_BALANCE;
+      
+      // Empezar en estado de espera para nueva apuesta
+      resetRoundState(); 
+    }
+
+    init();
+  </script>
+</body>
+</html>

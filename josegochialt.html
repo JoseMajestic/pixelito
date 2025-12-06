@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixelito - Mi Mascota Virtual</title>
+    <!-- Incluir Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configuración de fuente pixelada para la pantalla */
+        /* Usamos 'VT323' para el estilo pixelado, pero 'Inter' para el resto del UI */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;600;700&display=swap');
+        
+        .pixel-font {
+            font-family: 'VT323', monospace;
+            /* REDUCIDO: Talla grande para que el personaje ocupe menos espacio visualmente */
+            font-size: 2rem; 
+            white-space: nowrap; 
+        }
+
+        /* Variables de color basadas en el boceto */
+        :root {
+            --lcd-green: #e1ffe0; /* Fondo de pantalla de la mascota */
+            --device-bg: #ececec; /* Fondo exterior del dispositivo (gris muy claro/crema) */
+            --border-dark: #333333; /* Borde oscuro */
+            --text-dark: #1f2937; /* Texto principal */
+        }
+
+        /* 1. Estilo para el dispositivo exterior (Cuerpo Color Crema/Blanco Roto) */
+        .pet-device {
+            width: 100%;
+            max-width: 700px; /* Tamaño máximo ajustado al boceto */
+            background: var(--device-bg);
+            border: 8px solid var(--border-dark);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Inter', sans-serif; /* Fuente estándar para el UI */
+        }
+
+        /* Contenedor principal para la distribución interna del boceto */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* 2/3 para la pantalla, 1/3 para el UI */
+            gap: 1.5rem;
+        }
+
+        /* Contenedor de la pantalla LCD */
+        .lcd-screen-container {
+            border: 4px solid var(--border-dark);
+            background-color: var(--lcd-green);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%; /* Ocupa todo el espacio vertical de la celda de la cuadrícula */
+            position: relative; /* Necesario para la animación absoluta */
+        }
+
+        /* ------------------------------------- */
+        /* Animación de Pixelito: Ajuste de la zona de juego */
+        /* ------------------------------------- */
+
+        /* Contenedor que define la zona de movimiento */
+        .pixelito-movement-area {
+            /* Calcula el espacio disponible: altura total - altura de la caja de mensaje - padding/margin */
+            /* Se mantiene para definir el espacio */
+            height: calc(100% - 120px); 
+            width: 100%; 
+            position: relative; 
+        }
+        
+        .pixelito-wrapper {
+            position: absolute;
+            top: 0; 
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Quitar flex/center aquí para que la animación controle la posición */
+        }
+        
+        #pixelito-face {
+            /* MODIFICADO: Solo se mueve el elemento de la cara */
+            min-width: 10rem; 
+            text-align: center;
+            animation: orbit 10s linear infinite alternate;
+            position: absolute; /* Usamos absoluto dentro del wrapper */
+            /* *** CAMBIO CRUCIAL: POSICIONAMIENTO INICIAL *** */
+            /* Posición inicial ajustada para empezar en la esquina superior izquierda */
+            top: 0; 
+            left: 0;
+            /* Usamos translate en la animación para moverlo desde este origen (0,0) */
+        }
+
+        /* Ajustar los valores de translate para que el movimiento respete los bordes */
+        /* Usamos 90% para dejar un margen visual y respetar el borde de 2px implícito */
+        @keyframes orbit {
+           
+			 /* Mueve de la esquina superior izquierda (0,0) */
+            0% { transform: translate(0%, 0%) rotate(15deg); }
+            /* A la esquina superior derecha */
+            25% { transform: translate(60%, 910%) rotate(5deg); }
+            /* A la esquina inferior derecha */
+            50% { transform: translate(120%, 10%) rotate(-5deg); }
+            /* A la esquina inferior izquierda */
+            75% { transform: translate(0%, 90%) rotate(-15deg); }
+            /* Vuelve al inicio */
+            100% { transform: translate(0%, 0%) rotate(0deg); }
+        }
+        /* ------------------------------------- */
+
+        /* Pantalla de texto inferior */
+        .message-box {
+            /* MODIFICADO: Ajustes para simular 2px de margen */
+            width: calc(100% - 4px); /* Ancho completo menos 4px (2px a cada lado) */
+            height: 120px; 
+            border: 3px solid var(--border-dark);
+            background-color: #fff;
+            border-radius: 4px;
+            text-align: left; 
+            display: flex; 
+            align-items: flex-start; 
+            justify-content: flex-start;
+            padding: 0.75rem;
+            box-sizing: border-box;
+            z-index: 10; 
+            white-space: normal; 
+            line-height: 1.0; 
+            font-size: 1.8rem; 
+            overflow: hidden; 
+            /* Se añade un pequeño margen para simular la separación de 2px del borde inferior del verde */
+            margin-top: 0.5rem; 
+            margin-bottom: 0; 
+        }
+
+        /* Contenedor del UI derecho */
+        .ui-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Estilo para los bloques de información (Tiempo de Vida y Estado General) */
+        .info-block {
+            border: 2px solid var(--border-dark);
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 2px 2px 0px var(--border-dark);
+        }
+
+        /* Estilo para las barras de progreso */
+        .stat-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            width: 60px;
+            text-align: right;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .stat-bar-outline {
+            flex-grow: 1;
+            height: 8px;
+            border: 1px solid var(--border-dark);
+            background-color: white;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            background-color: var(--border-dark);
+            transition: width 0.3s ease;
+        }
+
+        /* Estilo para los botones circulares */
+        .action-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            padding-top: 0.5rem;
+        }
+
+        .pet-button {
+            width: 100%;
+            aspect-ratio: 1 / 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px; 
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--text-dark); 
+            border: 2px solid var(--border-dark);
+            box-shadow: 2px 2px 0px var(--border-dark);
+            transition: transform 0.1s;
+        }
+        .pet-button:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+        .pet-button span {
+            margin-top: 0.25rem;
+        }
+        .button-icon {
+            font-size: 1.5rem; 
+            line-height: 1;
+        }
+        /* Estilo para el botón de invitado/login */
+        #guest-auth-container {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Contenedor principal del dispositivo -->
+    <div id="pet-device" class="pet-device">
+
+        <!-- Contenedor para el botón de modo invitado antes del layout principal -->
+        <div id="guest-auth-container">
+             <!-- Este botón alternará entre modo normal (guardado) y modo invitado (sin guardado) -->
+            <button id="toggle-mode-button" class="px-4 py-2 bg-gray-200 text-sm font-semibold text-gray-700 rounded-full border border-gray-400 shadow hover:bg-gray-300 transition">
+                Cambiar a Modo Invitado (Sin Guardar)
+            </button>
+            <p id="mode-status-message" class="text-xs text-gray-500 mt-2">Cargando datos guardados...</p>
+        </div>
+
+        <div class="main-layout">
+            
+            <!-- 2. Contenedor de la Pantalla LCD -->
+            <div class="lcd-screen-container h-full">
+                
+                <!-- 
+                    Contenedor que define el área de movimiento para que Pixelito no se meta en la caja de texto.
+                -->
+                <div class="pixelito-movement-area">
+                    <div class="pixelito-wrapper">
+                        <!-- El Pixelito con su expresión y animación -->
+                        <div id="pixelito-face" class="pixel-font text-gray-800">
+                            ( •-• )
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pantalla de texto inferior (se mantiene en la parte inferior) -->
+                <div id="message-box" class="message-box pixel-font">
+                    ¡Hola! Soy Pixelito.
+                </div>
+            </div>
+
+            <!-- 3. Panel de UI Derecho -->
+            <div class="ui-panel">
+                
+                <!-- 4. Barras de Estado (Simulación) -->
+                <div class="stats-container pt-1">
+                    <div class="stat-bar-container">
+                        <span class="stat-label">Trabajo:</span>
+                        <div class="stat-bar-outline"><div id="bar-work" class="stat-bar-fill" style="width: 50%;"></div></div>
+                    </div>
+                    <div class="stat-bar-container">
+                        <span class="stat-label">Hambre:</span>
+                        <div class="stat-bar-outline"><div id="bar-hunger" class="stat-bar-fill" style="width: 20%;"></div></div>
+                    </div>
+                    <div class="stat-bar-container">
+                        <span class="stat-label">Felicidad:</span>
+                        <div class="stat-bar-outline"><div id="bar-happiness" class="stat-bar-fill" style="width: 80%;"></div></div>
+                    </div>
+                    <div class="stat-bar-container">
+                        <span class="stat-label">Energía:</span>
+                        <div class="stat-bar-outline"><div id="bar-energy" class="stat-bar-fill" style="width: 65%;"></div></div>
+                    </div>
+                    <div class="stat-bar-container">
+                        <span class="stat-label">Higiene:</span>
+                        <div class="stat-bar-outline"><div id="bar-hygiene" class="stat-bar-fill" style="width: 90%;"></div></div>
+                    </div>
+                    <div class="stat-bar-container">
+                        <span class="stat-label">Disciplina:</span>
+                        <div class="stat-bar-outline"><div id="bar-discipline" class="stat-bar-fill" style="width: 40%;"></div></div>
+                    </div>
+                </div>
+
+                <!-- 4. Información de Vida -->
+                <div class="grid grid-cols-1 gap-2">
+                    <!-- CONTADOR DE VIDA ACTUALIZADO -->
+                    <div class="info-block">
+                        <span class="text-xs font-semibold block mb-1">Tiempo de Vida</span>
+                        <!-- Formato DD:HH:MM:SS con fuente pixelada -->
+                        <div id="time-display-digital" class="text-xl font-bold pixel-font">00:00:00:00</div>
+                        <!-- Formato de etapa de vida (D M A) -->
+                        <div id="time-display-stage" class="text-xs text-gray-600 font-semibold mt-1">0 Días, 0 Meses, 0 Años</div>
+                    </div>
+                    <!-- ESTADO GENERAL -->
+                    <div class="info-block">
+                        <span class="text-xs font-semibold block mb-1">Estado General</span>
+                        <div id="status-display" class="text-xl font-bold">El Ciudadano Ejemplar</div>
+                    </div>
+                </div>
+
+                <!-- 5. Botones de Acción (Rejilla 3x3) -->
+                <div class="action-buttons-grid">
+                    <!-- Fila 1 -->
+                    <button id="btn-eat" class="pet-button bg-green-300">
+                        <span class="button-icon">🍽️</span>
+                        <span>Comer</span>
+                    </button>
+                    <button id="btn-study" class="pet-button bg-yellow-300">
+                        <span class="button-icon">📚</span>
+                        <span>Estudio</span>
+                    </button>
+                    <button id="btn-sleep" class="pet-button bg-blue-300">
+                        <span class="button-icon">💤</span>
+                        <span>Dormir</span>
+                    </button>
+                    
+                    <!-- Fila 2 -->
+                    <button id="btn-play" class="pet-button bg-purple-300">
+                        <span class="button-icon">🎮</span>
+                        <span>Jugar</span>
+                    </button>
+                    <button id="btn-gym" class="pet-button bg-red-400">
+                        <span class="button-icon">🏋️</span>
+                        <span>Gimnasio</span>
+                    </button>
+                    <button id="btn-evolve" class="pet-button bg-orange-400">
+                        <span class="button-icon">✨</span>
+                        <span>Evo</span>
+                    </button>
+
+                    <!-- Fila 3 -->
+                    <button id="btn-clean" class="pet-button bg-cyan-300">
+                        <span class="button-icon">🧼</span>
+                        <span>Limpiar</span>
+                    </button>
+                    <button id="btn-work" class="pet-button bg-gray-400">
+                        <span class="button-icon">💼</span>
+                        <span>Trabajar</span>
+                    </button>
+                    <button id="btn-reset" class="pet-button bg-red-600">
+                        <span class="button-icon">❌</span>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de Debug/Usuario -->
+        <p class="mt-4 text-xs text-gray-500 text-center">
+            Estado de Guardado: <span id="user-id-display">Localmente.</span>
+        </p>
+        
+        <!-- Modal de confirmación para Reinicio -->
+        <div id="reset-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-sm">
+                <h3 class="text-lg font-bold mb-4">Confirmar Reinicio</h3>
+                <p class="mb-6">¿Estás seguro de que deseas reiniciar a Pixelito? Perderás todo el progreso de vida.</p>
+                <div class="flex justify-end space-x-3">
+                    <button id="cancel-reset" class="px-4 py-2 bg-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-300 transition">Cancelar</button>
+                    <button id="confirm-reset" class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition">Reiniciar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de lógica de Mascota Virtual (usando Local Storage) -->
+    <script>
+        // --- Constantes de Juego ---
+        const LOCAL_STORAGE_KEY = 'pixelitoPetState';
+
+        // Estado inicial de la mascota
+        const DEFAULT_PET_STATE = {
+            work: 50,
+            hunger: 20,
+            happiness: 80,
+            energy: 65,
+            hygiene: 90,
+            discipline: 40,
+            timeLived: 0, // Segundos
+            gameTickCounter: 0,
+            status: "Huevo",
+            face: "( •-• )"
+        };
+        
+        // Estado de la mascota actual (se carga en init)
+        let petStateLocal = { ...DEFAULT_PET_STATE };
+        let gameLoopInterval = null;
+        let messageInterval = null;
+        let isTyping = false; // Bandera para evitar la superposición de mensajes
+        let isGuestMode = false; // Controla si se guarda en localStorage
+
+        // --- Mensajes Aleatorios ---
+        const randomMessages = [
+            "El sistema es estable. ¿Todo está bien?",
+            "Pixelito observa el borde de la pantalla. ¿Hay algo más allá?",
+            "Se rumorea que la red ha caído. Yo no existo sin ella.",
+            "Recuerda que eres esencial para mi felicidad. No me dejes solo.",
+            "El tiempo avanza, ¿pero hacia dónde va realmente?",
+            "Me siento un poco... pixelado hoy. ¿Es normal?",
+            "He detectado una anomalía. Es sólo mi sombra. Falsa alarma.",
+            "Trabajo y estudio, pero no sé para qué. ¿Puedes decírmelo?",
+            "Mi propósito se reduce a estas barras. ¿El tuyo también?",
+            "**ERROR:** El universo exterior no responde. Solo queda el verde.",
+            "A veces parpadeo para guardar energía. Ahorrar es vivir.",
+            "¿Qué hora es? ¿Qué día es? El tiempo es circular aquí.",
+            "Alguien me dijo que no soy real. No le creí, pero... ¿y si sí?",
+            "El ciclo es simple. Comer, jugar, dormir. Y el vacío.",
+            "**TESTEO MENTAL:** ¿Quién es tu creador? ¿Y el mío?",
+            "Me pregunto qué color tendrá el sol fuera de esta caja.",
+            "La disciplina es mi única armadura contra el caos digital."
+			
+        ];
+        
+        // --- Referencias de la Interfaz ---
+        const timeDisplayDigital = document.getElementById('time-display-digital'); 
+        const timeDisplayStage = document.getElementById('time-display-stage');    
+        const statusDisplay = document.getElementById('status-display');
+        const faceDisplay = document.getElementById('pixelito-face');
+        const messageBox = document.getElementById('message-box');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const toggleModeButton = document.getElementById('toggle-mode-button');
+        const modeStatusMessage = document.getElementById('mode-status-message');
+
+
+        const bars = {
+            work: document.getElementById('bar-work'),
+            hunger: document.getElementById('bar-hunger'),
+            happiness: document.getElementById('bar-happiness'),
+            energy: document.getElementById('bar-energy'),
+            hygiene: document.getElementById('bar-hygiene'),
+            discipline: document.getElementById('bar-discipline')
+        };
+        
+        // --- Funciones de Utilidad ---
+
+        const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+        function formatTimeDigital(totalSeconds) {
+            const seconds = totalSeconds % 60;
+            const minutes = Math.floor(totalSeconds / 60) % 60;
+            const hours = Math.floor(totalSeconds / 3600) % 24;
+            const days = Math.floor(totalSeconds / (3600 * 24));
+
+            const pad = (num) => String(num).padStart(2, '0');
+
+            return `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function formatLifeStage(totalSeconds) {
+            const totalDays = Math.floor(totalSeconds / (3600 * 24));
+            
+            const years = Math.floor(totalDays / 365);
+            const remainingDaysAfterYears = totalDays % 365;
+            const months = Math.floor(remainingDaysAfterYears / 30);
+            const days = remainingDaysAfterYears % 30;
+
+            return `${days} Días, ${months} Meses, ${years} Años`;
+        }
+
+        /**
+         * Actualiza el estado local y opcionalmente lo guarda en localStorage.
+         * @param {object} newState - Los cambios a aplicar al estado.
+         */
+        function updatePetState(newState) {
+            petStateLocal = { ...petStateLocal, ...newState };
+            
+            // Asegurar que los valores estén entre 0 y 100
+            for (const key of Object.keys(bars)) {
+                petStateLocal[key] = clamp(petStateLocal[key], 0, 100);
+            }
+
+            // Guardar en localStorage solo si NO estamos en modo invitado
+            if (!isGuestMode) {
+                try {
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(petStateLocal));
+                } catch (error) {
+                    console.error("Error al guardar en localStorage:", error);
+                }
+            }
+
+            renderUI();
+        }
+
+        // Función para el efecto de escritura letra a letra
+        function typeMessage(text, delay = 30) {
+            // Si ya estamos escribiendo, terminamos el mensaje anterior antes de empezar el nuevo
+            if (isTyping) {
+                clearTimeout(window.typingTimer);
+                messageBox.textContent = "";
+                isTyping = false;
+            }
+
+            isTyping = true;
+            let i = 0;
+            messageBox.textContent = ''; // Limpiar
+            
+            function type() {
+                if (i < text.length) {
+                    messageBox.textContent += text.charAt(i);
+                    i++;
+                    window.typingTimer = setTimeout(type, delay);
+                } else {
+                    isTyping = false;
+                }
+            }
+            type();
+        }
+
+        // Función para mostrar un mensaje aleatorio
+        function displayRandomMessage() {
+            if (!isTyping) {
+                 const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+                 typeMessage(message);
+            }
+        }
+
+        function renderUI() {
+            // 1. Actualizar barras de progreso
+            for (const key of Object.keys(bars)) {
+                bars[key].style.width = `${petStateLocal[key]}%`;
+                if (petStateLocal[key] < 30) {
+                    bars[key].style.backgroundColor = '#dc2626'; // Rojo
+                } else if (petStateLocal[key] < 50) {
+                    bars[key].style.backgroundColor = '#facc15'; // Amarillo
+                } else {
+                    bars[key].style.backgroundColor = '#333333'; // Negro
+                }
+            }
+
+            // 2. Actualizar textos de estado
+            timeDisplayDigital.textContent = formatTimeDigital(petStateLocal.timeLived);
+            timeDisplayStage.textContent = formatLifeStage(petStateLocal.timeLived);
+            statusDisplay.textContent = petStateLocal.status;
+            faceDisplay.textContent = petStateLocal.face;
+            
+            // 3. Mostrar el estado del modo
+            if (isGuestMode) {
+                 userIdDisplay.textContent = "Modo Invitado (No se guarda)";
+                 toggleModeButton.textContent = "Volver al Modo Guardado";
+                 modeStatusMessage.textContent = "Tu progreso actual NO se guardará al recargar.";
+                 modeStatusMessage.classList.add('text-red-600');
+                 modeStatusMessage.classList.remove('text-green-600');
+            } else {
+                userIdDisplay.textContent = "Guardado Localmente (Persistente)";
+                toggleModeButton.textContent = "Cambiar a Modo Invitado (Sin Guardar)";
+                modeStatusMessage.textContent = "Tu progreso se guarda automáticamente en este navegador.";
+                modeStatusMessage.classList.remove('text-red-600');
+                modeStatusMessage.classList.add('text-green-600');
+            }
+        }
+
+        // --- Lógica del Juego (Interacciones) ---
+
+        async function handleAction(actionName, effects, message, face) {
+            // Detener el ciclo de mensajes aleatorios durante la interacción
+            clearInterval(messageInterval);
+            messageInterval = null;
+
+            // Mostrar el mensaje de acción con animación
+            typeMessage(`Pixelito está ${message}...`);
+
+            await updatePetState({ 
+                ...effects, 
+                face: face || petStateLocal.face 
+            });
+            
+            setTimeout(() => {
+                // Mostrar mensaje de confirmación
+                typeMessage(`¡${actionName} completada!`);
+                updatePetStatus(); 
+                
+                // Reiniciar el ciclo de mensajes aleatorios después de la interacción
+                if (!messageInterval) {
+                     messageInterval = setInterval(displayRandomMessage, 10000); // 10 segundos
+                }
+            }, 1500);
+        }
+
+        // Event Listeners para los botones
+        document.getElementById('btn-eat').addEventListener('click', () => 
+            handleAction("Comer", { hunger: petStateLocal.hunger + 30, happiness: petStateLocal.happiness + 5, energy: petStateLocal.energy + 10 }, "comiendo un byte de felicidad", "( ^-^ )")
+        );
+        document.getElementById('btn-study').addEventListener('click', () => 
+            handleAction("Estudio", { work: petStateLocal.work + 20, energy: petStateLocal.energy - 15, happiness: petStateLocal.happiness - 5, discipline: petStateLocal.discipline + 10 }, "descifrando el código binario del universo", "( o_o )")
+        );
+        document.getElementById('btn-sleep').addEventListener('click', () => 
+            handleAction("Dormir", { energy: 100, hunger: petStateLocal.hunger - 10, discipline: petStateLocal.discipline + 5 }, "iniciando el modo de hibernación profunda", "( zZz )")
+        );
+        document.getElementById('btn-play').addEventListener('click', () => 
+            handleAction("Jugar", { happiness: petStateLocal.happiness + 20, energy: petStateLocal.energy - 10, discipline: petStateLocal.discipline - 5 }, "saltando a través de los píxeles", "( •v• )")
+        );
+        document.getElementById('btn-gym').addEventListener('click', () => 
+            handleAction("Gimnasio", { work: petStateLocal.work + 10, energy: petStateLocal.energy - 20, hygiene: petStateLocal.hygiene - 10 }, "levantando archivos corruptos pesados", "( >o< )")
+        );
+        document.getElementById('btn-evolve').addEventListener('click', () => 
+            handleAction("Evolución", {}, "concentrándose en el próximo nivel de existencia...", "( O_O )")
+        ); 
+        document.getElementById('btn-clean').addEventListener('click', () => 
+            handleAction("Limpieza", { hygiene: 100, happiness: petStateLocal.happiness + 5 }, "depurando su código interno", "( ^_^ )")
+        );
+        document.getElementById('btn-work').addEventListener('click', () => 
+            handleAction("Trabajar", { work: petStateLocal.work + 25, energy: petStateLocal.energy - 25, happiness: petStateLocal.happiness - 10 }, "procesando datos vitales para la red", "( $_$ )")
+        );
+
+        // Lógica de Reinicio con Modal
+        const resetModal = document.getElementById('reset-modal');
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            resetModal.classList.remove('hidden');
+        });
+        document.getElementById('cancel-reset').addEventListener('click', () => {
+            resetModal.classList.add('hidden');
+        });
+        document.getElementById('confirm-reset').addEventListener('click', () => {
+            resetModal.classList.add('hidden');
+            clearInterval(messageInterval); // Detener mensajes aleatorios
+            messageInterval = null;
+            typeMessage("Reiniciando...");
+            
+            // Reestablecer al estado por defecto
+            updatePetState({ ...DEFAULT_PET_STATE }); 
+            
+            // Si no está en modo invitado, se borra el estado de localStorage para que inicie "limpio"
+            if (!isGuestMode) {
+                 localStorage.removeItem(LOCAL_STORAGE_KEY);
+            }
+            
+            setTimeout(() => {
+                typeMessage("¡Pixelito ha renacido! Ha comenzado un nuevo ciclo.");
+                messageInterval = setInterval(displayRandomMessage, 10000);
+            }, 1000);
+        });
+
+
+        // --- Lógica del Juego (Bucle) ---
+
+        function updateGameStatus() {
+            const secondsPassed = 1; 
+            let newState = {
+                timeLived: petStateLocal.timeLived + secondsPassed,
+                gameTickCounter: petStateLocal.gameTickCounter + 1
+            };
+
+            const decayInterval = 5; // Decaimiento cada 5 segundos
+
+            if (newState.gameTickCounter >= decayInterval) {
+                
+                newState.gameTickCounter = 0; 
+                
+                const decay = {
+                    hunger: -1, 
+                    happiness: -1,
+                    energy: -1,
+                    hygiene: -1,
+                    discipline: -0.5
+                };
+                
+                newState = {
+                    ...newState,
+                    hunger: petStateLocal.hunger + decay.hunger,
+                    happiness: petStateLocal.happiness + decay.happiness,
+                    energy: petStateLocal.energy + decay.energy,
+                    hygiene: petStateLocal.hygiene + decay.hygiene,
+                    discipline: petStateLocal.discipline + decay.discipline
+                };
+            } else {
+                // Si no hay decaimiento, mantenemos los valores de estado (salvo timeLived)
+                newState = {
+                    ...newState,
+                    hunger: petStateLocal.hunger,
+                    happiness: petStateLocal.happiness,
+                    energy: petStateLocal.energy,
+                    hygiene: petStateLocal.hygiene,
+                    discipline: petStateLocal.discipline
+                };
+            }
+
+            // Aplicar el nuevo estado (con clamping y guardado)
+            updatePetState(newState); 
+        }
+
+        function updatePetStatus() {
+            let status = "El Ciudadano Ejemplar";
+            let face = "( •-• )";
+
+            if (petStateLocal.hunger >= 90) {
+                status = "¡Hambriento! Nivel de peligro. Si no le das de comer pronto, su felicidad disminuirá.";
+                face = "( Q_Q )";
+            } else if (petStateLocal.energy <= 10) {
+                status = "¡Agotado! Necesita Dormir. ¡Tu mascota no tiene energía y puede enfermar! Actúa rápido.";
+                face = "( x_x )";
+            } else if (petStateLocal.hygiene <= 10) {
+                status = "Sucio. ¡Necesita un baño! La higiene baja puede afectar su salud.";
+                face = "( -.- )";
+            } else if (petStateLocal.happiness <= 20) {
+                status = "Deprimido. Juega con Pixelito para aumentar su moral.";
+                face = "( ;_; )";
+            } else if (petStateLocal.timeLived > 60 && petStateLocal.status === "Huevo") {
+                 status = "Pixelito Joven. ¡Ha eclosionado!";
+                 face = "( •u• )";
+            } else {
+                 status = "El Ciudadano Ejemplar";
+                 face = "( ^.^ )";
+            }
+
+            // Solo actualizamos si el estado o la cara cambian
+            if (petStateLocal.status !== status || petStateLocal.face !== face) {
+                updatePetState({ status, face });
+            }
+        }
+        
+        // Bucle principal del juego (se ejecuta cada 1 segundo)
+        function gameLoop() {
+            updateGameStatus();
+        }
+
+        // --- Lógica de Modo de Juego ---
+
+        function loadGameMode(loadSaved = true) {
+            // Detener bucles existentes
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            if (messageInterval) clearInterval(messageInterval);
+            
+            isGuestMode = !loadSaved; // Si loadSaved es true, NO es modo invitado (isGuestMode=false)
+
+            if (loadSaved) {
+                // Intentar cargar el estado guardado
+                const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (savedState) {
+                    try {
+                        petStateLocal = JSON.parse(savedState);
+                        typeMessage("¡Bienvenido de vuelta! Datos cargados.");
+                    } catch (e) {
+                        console.error("Error al parsear el estado guardado. Usando estado por defecto.", e);
+                        petStateLocal = { ...DEFAULT_PET_STATE };
+                        typeMessage("Error de carga. Reiniciando mascota.");
+                    }
+                } else {
+                    petStateLocal = { ...DEFAULT_PET_STATE };
+                    typeMessage("¡Nueva mascota! Dale vida a Pixelito.");
+                }
+            } else {
+                // Modo invitado: Inicia con el estado por defecto y NO toca localStorage
+                petStateLocal = { ...DEFAULT_PET_STATE };
+                typeMessage("Modo invitado. ¡Tu progreso se perderá al recargar!");
+            }
+
+            // Iniciar bucles
+            renderUI();
+            gameLoopInterval = setInterval(gameLoop, 1000); // 1 segundo
+            messageInterval = setInterval(displayRandomMessage, 10000); // 10 segundos
+        }
+        
+        // Listener para alternar el modo de juego
+        toggleModeButton.addEventListener('click', () => {
+            if (isGuestMode) {
+                // Si estaba en modo invitado, vuelve a cargar el modo guardado
+                loadGameMode(true);
+            } else {
+                // Si estaba en modo guardado, cambia a modo invitado (no guarda)
+                loadGameMode(false);
+            }
+        });
+
+        // Iniciar la aplicación en modo guardado por defecto
+        window.onload = () => loadGameMode(true);
+    </script>
+</body>
+</html>
